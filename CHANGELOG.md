@@ -4,6 +4,20 @@ This fork tracks [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDro
 master, with the changes below applied on top. If upstream ships its own fix for an issue
 listed here, prefer upstream's version.
 
+## v16-fork.6 — 2026-07-11
+
+### Changed
+- **Watch-transport rotation is now bounded to a single pass**, to keep the
+  self-healing watchdog from ever looking unusual to Twitch. It tries each
+  alternate watch method once; if none restores server-confirmed progress, it
+  concludes this is a Twitch-side outage (not something switching can fix),
+  settles back on the last-known-good method, and only alerts — instead of
+  cycling watch methods indefinitely. In normal operation nothing changes (the
+  miner keeps using the single current method, same rate, same payload); this
+  only affects behavior during a total outage, where it now behaves like a
+  browser that's also getting nothing rather than continuously emitting through
+  non-current methods.
+
 ## v16-fork.5 — 2026-07-11
 
 ### Added
