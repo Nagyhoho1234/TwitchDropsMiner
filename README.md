@@ -8,6 +8,8 @@
 > [releases page](https://github.com/Nagyhoho1234/TwitchDropsMiner/releases).
 > **This fork is not a long-term maintained project.** All changes have been offered to the upstream
 > maintainer (MIT — free to cherry-pick). Once upstream ships its own fixes, please switch back to it.
+> This fork adds quality-of-life features only and introduces no new security issue — see
+> [DISCLAIMER.md](DISCLAIMER.md).
 >
 > **About `#` in translations:** UI texts ending with `#` are machine-translated and not yet
 > reviewed by a native speaker (English and Hungarian are fully reviewed). If a marked string
