@@ -47,13 +47,15 @@
             "main": "主視窗",
             "inventory": "庫存",
             "settings": "設置",
-            "help": "幫助"
+            "help": "幫助",
+            "this_week": "本週 #"
         },
         "tray": {
             "notification_title": "開始掉寶活動",
             "minimize": "最小化到系統列",
             "show": "開啟視窗",
-            "quit": "離開"
+            "quit": "離開",
+            "new_campaign": "新掉寶活動 #"
         },
         "login": {
             "name": "登入 Twitch",
@@ -85,14 +87,18 @@
             "remaining": "剩餘時間：{time}",
             "campaign": "掉寶活動名稱：",
             "drop_progress": "掉寶進度：",
-            "campaign_progress": "活動進度："
+            "campaign_progress": "活動進度：",
+            "eta": "完成 ≈ {time} #",
+            "transport": "觀看方式：{transport} #",
+            "unverified": "已 {minutes} 分鐘未確認 ⚠ #",
+            "verified": "已由 Twitch 確認 ✔ #"
         },
         "channels": {
             "name": "活動頻道",
             "switch": "切換",
-            "online": "上線 \u2714",
-            "pending": "離線 \u23f3",
-            "offline": "離線 \u274c",
+            "online": "上線 ✔",
+            "pending": "離線 ⏳",
+            "offline": "離線 ❌",
             "headings": {
                 "channel": "頻道",
                 "game": "遊戲",
@@ -112,13 +118,13 @@
                 "refresh": "重新整理"
             },
             "status": {
-                "linked": "已連結 \u2714",
-                "not_linked": "未連結 \u274c",
-                "active": "已上線 \u2714",
-                "upcoming": "即將開始 \u23f3",
-                "expired": "已結束 \u274c",
-                "claimed": "已領取 \u2714",
-                "ready_to_claim": "可以領取 \u23f3"
+                "linked": "已連結 ✔",
+                "not_linked": "未連結 ❌",
+                "active": "已上線 ✔",
+                "upcoming": "即將開始 ⏳",
+                "expired": "已結束 ❌",
+                "claimed": "已領取 ✔",
+                "ready_to_claim": "可以領取 ⏳"
             },
             "starts": "開始時間：{time}",
             "ends": "結束時間：{time}",
@@ -126,7 +132,8 @@
             "all_channels": "全部",
             "and_more": "以及其他 {amount} 個…",
             "percent_progress": "{minutes} 分鐘的 {percent}",
-            "minutes_progress": "{minutes} 分鐘"
+            "minutes_progress": "{minutes} 分鐘",
+            "eta": "≈ 剩餘 {time} #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "啟用系統列通知：",
                 "dark_mode": "深色模式：",
                 "priority_mode": "掉寶模式：",
-                "proxy": "代理伺服器（需要重新啟動）："
+                "proxy": "代理伺服器（需要重新啟動）：",
+                "skip_unfinishable": "略過無法及時完成的掉寶活動 #：",
+                "update_check": "啟動時檢查更新 #：",
+                "webhook_test": "測試 #",
+                "webhook_test_failed": "測試訊息傳送失敗。 #",
+                "webhook_test_sent": "測試訊息已傳送。 #",
+                "webhook_url": "Discord Webhook 網址 #："
             },
             "advanced": {
                 "name": "進階設定",
@@ -165,7 +178,45 @@
             "how_it_works": "工作原理",
             "how_it_works_text": "每隔一段時間，應用程式就會向 Twitch 請求當前觀看頻道的原始串流數據的 URL。\n然後提取此串流的元數據——這足以推進掉寶進度。請注意，這完全繞過了下載實際的串流視頻和音頻的需求。\n為了使頻道的狀態（上線或離線）的即時更新，應用程式建立了一個 WebSocket 連接，\n該連接會接收有關串流上下線的事件或當前觀眾數量的更新。",
             "getting_started": "事前準備",
-            "getting_started_text": "1. 透過應用程式登入。\n2. 確保您的 Twitch 帳號已經和您所有感興趣的遊戲帳號已經連接。\n3. 如果您想要獲取所有感興趣的掉寶，請不要勾選「僅參與優先掉寶遊戲」，然後按「重新載入」。\n4. 如果您想優先獲取特定遊戲，請使用「優先掉寶遊戲」列表設置您想獲取的遊戲的優先順序。\n   應用程式將嘗試先獲取列表頂端的遊戲，然後依序獲取之後的遊戲。\n5. 勾選「僅參與優先掉寶遊戲」以避免獲取不在優先列表中的遊戲。當然，你也可以選擇不勾選——這取決於您。\n6. 使用「排除掉寶遊戲」列表設置永不獲取的遊戲。\n7. 更改任一列表的內容，或更改「僅參與優先掉寶遊戲」勾選狀態，需要手動按「重新載入」才能使更改生效。"
+            "getting_started_text": "1. 透過應用程式登入。\n2. 確保您的 Twitch 帳號已經和您所有感興趣的遊戲帳號已經連接。\n3. 如果您想要獲取所有感興趣的掉寶，請不要勾選「僅參與優先掉寶遊戲」，然後按「重新載入」。\n4. 如果您想優先獲取特定遊戲，請使用「優先掉寶遊戲」列表設置您想獲取的遊戲的優先順序。\n   應用程式將嘗試先獲取列表頂端的遊戲，然後依序獲取之後的遊戲。\n5. 勾選「僅參與優先掉寶遊戲」以避免獲取不在優先列表中的遊戲。當然，你也可以選擇不勾選——這取決於您。\n6. 使用「排除掉寶遊戲」列表設置永不獲取的遊戲。\n7. 更改任一列表的內容，或更改「僅參與優先掉寶遊戲」勾選狀態，需要手動按「重新載入」才能使更改生效。",
+            "invalidate": {
+                "button": "註銷 #",
+                "text": "使授權權杖失效（登出） #："
+            },
+            "verify": {
+                "button": "驗證 #",
+                "match": "伺服器端進度與本機狀態相符。 #",
+                "mismatch": "不相符！「{drop}」本機：{local} 分鐘，伺服器：{server} 分鐘。 #",
+                "no_drop": "目前沒有正在進行的掉寶可供驗證。 #",
+                "text": "向 Twitch 伺服器驗證掉寶進度 #："
+            }
+        },
+        "session": {
+            "summary": "本次工作階段：已領取 {drops} 個掉寶，已觀看 {minutes} 分鐘，已完成 {campaigns} 個掉寶活動 #"
+        },
+        "update": {
+            "available": "有新版本可用：{version} #",
+            "latest": "您目前使用的已是最新版本。 #"
+        },
+        "weekly": {
+            "applied": "✅ 已套用 {count} 個遊戲：{games}。重新載入中… #",
+            "apply": "✅ 套用所選 ▶ 開始獲取掉寶 #",
+            "badge_active": "● 剩 {days} 天 #",
+            "badge_upcoming": "◷ {days} 天後 #",
+            "channels_any": "任一頻道 #",
+            "channels_some": "{count} 個頻道 #",
+            "intro": "勾選本週想要獲取的掉寶活動，然後按「套用」。程式會優先觀看這些遊戲，並從參與活動的實況頻道領取掉寶。 #",
+            "link_account": "🔗 連結帳號 #",
+            "linked": "✔ 已連結 #",
+            "meta": "{campaign}  ·  {drops} 個掉寶，最多 {minutes} 分鐘  ·  {where}  ·  {link} #",
+            "no_campaigns": "未來一週沒有符合的掉寶活動。 #",
+            "no_data": "尚無活動資料——請先登入並等待庫存載入完成，再按「重新整理」。 #",
+            "not_linked": "✖ 未連結 #",
+            "nothing_selected": "⚠ 尚未勾選任何項目——請先選擇至少一個掉寶活動。 #",
+            "only_earnable": "僅顯示我可獲得的（帳號已連結） #",
+            "refresh": "🔄 從 Twitch 重新整理 #",
+            "refreshing": "⏳ 正在從 Twitch 重新整理…（幾秒後更新） #",
+            "status_count": "本週共 {count} 個掉寶活動，已依您的優先列表預先選取 {selected} 個。 #"
         }
     }
 }

@@ -47,13 +47,15 @@
             "main": "Ana Sayfa",
             "inventory": "Envanter",
             "settings": "Ayarlar",
-            "help": "Yardım"
+            "help": "Yardım",
+            "this_week": "Bu Hafta #"
         },
         "tray": {
             "notification_title": "Kazanılan Drop",
             "minimize": "Sistem Tepsisine Küçült",
             "show": "Göster",
-            "quit": "Çıkış"
+            "quit": "Çıkış",
+            "new_campaign": "Yeni Kampanya #"
         },
         "login": {
             "name": "Giriş Formu",
@@ -85,7 +87,11 @@
             "campaign": "Kampanya:",
             "remaining": "{time} kaldı",
             "drop_progress": "İlerleme:",
-            "campaign_progress": "İlerleme:"
+            "campaign_progress": "İlerleme:",
+            "eta": "bitiş ≈ {time} #",
+            "transport": "İzleme yöntemi: {transport} #",
+            "unverified": "{minutes} dk boyunca doğrulanmadı ⚠ #",
+            "verified": "Twitch tarafından doğrulandı ✔ #"
         },
         "channels": {
             "name": "Kanallar",
@@ -126,7 +132,8 @@
             "all_channels": "Tümü",
             "and_more": "ve {amount} tane daha...",
             "percent_progress": "{minutes} dakikanın {percent} kadarı",
-            "minutes_progress": "{minutes} dakika"
+            "minutes_progress": "{minutes} dakika",
+            "eta": "≈ {time} kaldı #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Sistem tepsisi bildirimleri: ",
                 "dark_mode": "Karanlık mod: ",
                 "priority_mode": "Öncelik modu: ",
-                "proxy": "Proxy (yeniden başlatma gerektirir):"
+                "proxy": "Proxy (yeniden başlatma gerektirir):",
+                "skip_unfinishable": "Zamanında tamamlanamayacak kampanyaları atla #: ",
+                "update_check": "Başlangıçta güncellemeleri denetle #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Test mesajı gönderilemedi. #",
+                "webhook_test_sent": "Test mesajı gönderildi. #",
+                "webhook_url": "Discord webhook URL'si #: "
             },
             "advanced": {
                 "name": "Gelişmiş",
@@ -165,7 +178,45 @@
             "how_it_works": "Nasıl Çalışır",
             "how_it_works_text": "Her birkaç saniyede bir, uygulama yayın meta verilerini getirerek belirli bir yayını izliyormuş gibi davranır - bu, dropların ilerlemesi için yeterlidir. Bunun, gerçek bir video ve ses yayını indirme ihtiyacını tamamen ortadan kaldırdığını unutmayın. Kanalların durumunu (ÇEVRİMİÇİ veya ÇEVRİMDIŞI) güncel tutmak için, açılan veya kapanan yayınlar hakkında etkinlikler alan veya mevcut izleyici sayısıyla ilgili güncellemeleri bildiren bir websocket bağlantısı kurulur.",
             "getting_started": "Başlarken",
-            "getting_started_text": "1. Uygulamaya giriş yapın.\n2. Twitch hesabınızın drop kazmak (mining) istediğiniz tüm kampanyalara bağlı olduğundan emin olun.\n3. Mümkün olan her şeyden drop kazanmakla ilgileniyorsanız, Öncelik Modunu \"Sadece öncelik listesi\" dışında bir seçeneğe değiştirin ve \"Yenile\" butonuna basın.\n4. Öncelikle belirli oyunları kazmak istiyorsanız, seçtiğiniz oyunların sıralı bir listesini oluşturmak için \"Öncelik\" listesini kullanın. Listenin başındaki oyunlar, daha alt sıralardakilerden önce kazılmaya çalışılacaktır.\n5. Öncelik listesinde olmayan oyunların kazılmasını önlemek için \"Öncelik modu\"nu \"Sadece öncelik listesi\" olarak seçili bırakın. Ya da bırakmayın - tamamen size kalmış.\n6. Uygulamaya hangi oyunların asla kazılmaması gerektiğini söylemek için \"Hariç Tut\" listesini kullanın.\n7. İki listeden birinin içeriğini değiştirmek veya \"Öncelik modu\"nu değiştirmek, değişikliklerin etkili olması için \"Yenile\"ye basmanızı gerektirir."
+            "getting_started_text": "1. Uygulamaya giriş yapın.\n2. Twitch hesabınızın drop kazmak (mining) istediğiniz tüm kampanyalara bağlı olduğundan emin olun.\n3. Mümkün olan her şeyden drop kazanmakla ilgileniyorsanız, Öncelik Modunu \"Sadece öncelik listesi\" dışında bir seçeneğe değiştirin ve \"Yenile\" butonuna basın.\n4. Öncelikle belirli oyunları kazmak istiyorsanız, seçtiğiniz oyunların sıralı bir listesini oluşturmak için \"Öncelik\" listesini kullanın. Listenin başındaki oyunlar, daha alt sıralardakilerden önce kazılmaya çalışılacaktır.\n5. Öncelik listesinde olmayan oyunların kazılmasını önlemek için \"Öncelik modu\"nu \"Sadece öncelik listesi\" olarak seçili bırakın. Ya da bırakmayın - tamamen size kalmış.\n6. Uygulamaya hangi oyunların asla kazılmaması gerektiğini söylemek için \"Hariç Tut\" listesini kullanın.\n7. İki listeden birinin içeriğini değiştirmek veya \"Öncelik modu\"nu değiştirmek, değişikliklerin etkili olması için \"Yenile\"ye basmanızı gerektirir.",
+            "invalidate": {
+                "button": "Geçersiz Kıl #",
+                "text": "Yetkilendirme anahtarını (token) geçersiz kıl (çıkış yap) #:"
+            },
+            "verify": {
+                "button": "Doğrula #",
+                "match": "Sunucudaki ilerleme yerel durumla eşleşiyor. #",
+                "mismatch": "Uyuşmazlık! \"{drop}\" için yerel: {local} dk, sunucu: {server} dk. #",
+                "no_drop": "Doğrulanacak, aktif olarak kazılan bir drop yok. #",
+                "text": "Drop ilerlemesini Twitch sunucularıyla doğrula #:"
+            }
+        },
+        "session": {
+            "summary": "Oturum: {drops} drop alındı, {minutes} dk kazıldı, {campaigns} kampanya tamamlandı #"
+        },
+        "update": {
+            "available": "Yeni sürüm mevcut: {version} #",
+            "latest": "En son sürümü kullanıyorsunuz. #"
+        },
+        "weekly": {
+            "applied": "✅ {count} oyun uygulandı: {games}. Yenileniyor… #",
+            "apply": "✅ Seçimi uygula ▶ kazmaya başla #",
+            "badge_active": "● {days} gün kaldı #",
+            "badge_upcoming": "◷ {days} gün sonra #",
+            "channels_any": "herhangi bir kanal #",
+            "channels_some": "{count} kanal #",
+            "intro": "Bu hafta kazmak istediğiniz kampanyaları işaretleyin, ardından Uygula'ya basın. Uygulama bu oyunlara öncelik verecek ve dropları canlı yayındaki katılımcı kanallardan toplayacaktır. #",
+            "link_account": "🔗 Hesabı bağla #",
+            "linked": "✔ bağlı #",
+            "meta": "{campaign}  ·  {drops} drop, en fazla {minutes} dk  ·  {where}  ·  {link} #",
+            "no_campaigns": "Önümüzdeki hafta için eşleşen kampanya yok. #",
+            "no_data": "Henüz kampanya verisi yok — giriş yapın, envanterin yüklenmesini bekleyin ve ardından Yenile'ye basın. #",
+            "not_linked": "✖ bağlı değil #",
+            "nothing_selected": "⚠ Hiçbir şey işaretlenmedi — önce en az bir kampanya seçin. #",
+            "only_earnable": "Yalnızca kazanabileceklerimi göster (hesap bağlı) #",
+            "refresh": "🔄 Twitch'ten yenile #",
+            "refreshing": "⏳ Twitch'ten yenileniyor… (birkaç saniye içinde güncellenir) #",
+            "status_count": "Bu hafta {count} kampanya var. Öncelik listenizden {selected} tanesi önceden seçildi. #"
         }
     }
 }

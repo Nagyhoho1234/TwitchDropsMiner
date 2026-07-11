@@ -47,13 +47,15 @@
             "main": "主面板",
             "inventory": "掉宝库存",
             "settings": "设置",
-            "help": "帮助"
+            "help": "帮助",
+            "this_week": "本周 #"
         },
         "tray": {
             "notification_title": "已领取掉宝",
             "minimize": "最小化窗口",
             "show": "打开主面板",
-            "quit": "退出"
+            "quit": "退出",
+            "new_campaign": "新掉宝活动 #"
         },
         "login": {
             "name": "登录Twitch账户",
@@ -85,7 +87,11 @@
             "remaining": "剩余：{time}",
             "campaign": "掉宝活动名称：",
             "drop_progress": "掉宝进度：",
-            "campaign_progress": "活动进度："
+            "campaign_progress": "活动进度：",
+            "eta": "完成 ≈ {time} #",
+            "transport": "观看方式：{transport} #",
+            "unverified": "已{minutes}分钟未确认 ⚠ #",
+            "verified": "已由Twitch确认 ✔ #"
         },
         "channels": {
             "name": "活动频道",
@@ -126,7 +132,8 @@
             "all_channels": "分区中的所有频道",
             "and_more": "还有{amount}个...",
             "percent_progress": "{minutes}分钟的{percent}",
-            "minutes_progress": "{minutes}分钟"
+            "minutes_progress": "{minutes}分钟",
+            "eta": "≈ 剩余{time} #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "启用托盘通知",
                 "dark_mode": "夜间模式",
                 "priority_mode": "掉宝挖掘模式",
-                "proxy": "代理地址（需要重启）："
+                "proxy": "代理地址（需要重启）：",
+                "skip_unfinishable": "跳过无法按时完成的掉宝活动 #",
+                "update_check": "启动时检查更新 #",
+                "webhook_test": "测试 #",
+                "webhook_test_failed": "测试消息发送失败。 #",
+                "webhook_test_sent": "测试消息已发送。 #",
+                "webhook_url": "Discord Webhook地址 #："
             },
             "advanced": {
                 "name": "高级设置",
@@ -165,7 +178,45 @@
             "how_it_works": "工作原理",
             "how_it_works_text": "该应用程序每隔几秒钟就会抓取流媒体元数据，以假装在观看特定的直播频道——这足以推进掉宝进度，且完全不需要下载任何实际视频或声音流。为了使频道的状态（在线或离线）保持最新，建立了Websocket连接，以接收有关直播的开播下播事件，并更新当前观众数量。",
             "getting_started": "入门设置",
-            "getting_started_text": "1. 在应用程序中登录您的Twitch账户。\n2. 确保您想领取掉宝的所有游戏的账户都已关联到您的Twitch账户。\n3. 若您想挖掘所有掉宝，请在“掉宝挖掘模式”中选择“仅观看优先列表中的游戏”以外的模式，然后点击“刷新”。\n4. 若您想优先挖掘特定游戏的掉宝，请在“优先列表”中按照挖掘优先级顺序排列游戏。程序将尝试先挖掘列表顶部的游戏，然后再挖掘后面的游戏。\n5. 勾选“仅观看优先列表中的游戏”时，不会挖掘不在“优先列表”中的游戏。\n6. 在“排除列表”中添加永不挖掘的游戏。\n7. 更改任一列表的内容，或更改“仅观看优先列表中的游戏”勾选状态后，需要手动点击“刷新”才能使改动生效。"
+            "getting_started_text": "1. 在应用程序中登录您的Twitch账户。\n2. 确保您想领取掉宝的所有游戏的账户都已关联到您的Twitch账户。\n3. 若您想挖掘所有掉宝，请在“掉宝挖掘模式”中选择“仅观看优先列表中的游戏”以外的模式，然后点击“刷新”。\n4. 若您想优先挖掘特定游戏的掉宝，请在“优先列表”中按照挖掘优先级顺序排列游戏。程序将尝试先挖掘列表顶部的游戏，然后再挖掘后面的游戏。\n5. 勾选“仅观看优先列表中的游戏”时，不会挖掘不在“优先列表”中的游戏。\n6. 在“排除列表”中添加永不挖掘的游戏。\n7. 更改任一列表的内容，或更改“仅观看优先列表中的游戏”勾选状态后，需要手动点击“刷新”才能使改动生效。",
+            "invalidate": {
+                "button": "作废 #",
+                "text": "作废授权令牌（退出登录） #："
+            },
+            "verify": {
+                "button": "验证 #",
+                "match": "服务器端进度与本地状态一致。 #",
+                "mismatch": "不一致！“{drop}”本地：{local}分钟，服务器：{server}分钟。 #",
+                "no_drop": "当前没有正在挖掘的掉宝可供验证。 #",
+                "text": "与Twitch服务器核对掉宝进度 #："
+            }
+        },
+        "session": {
+            "summary": "本次运行：已领取{drops}个掉宝，已挖掘{minutes}分钟，已完成{campaigns}个掉宝活动 #"
+        },
+        "update": {
+            "available": "发现新版本：{version} #",
+            "latest": "当前已是最新版本。 #"
+        },
+        "weekly": {
+            "applied": "✅ 已应用{count}个游戏：{games}。刷新中... #",
+            "apply": "✅ 应用所选 ▶ 开始挖掘 #",
+            "badge_active": "● 剩{days}天 #",
+            "badge_upcoming": "◷ {days}天后 #",
+            "channels_any": "任意频道 #",
+            "channels_some": "{count}个频道 #",
+            "intro": "勾选本周想要挖掘的掉宝活动，然后点击“应用”。程序将优先挖掘这些游戏，并从参与活动的直播频道中收集掉宝。 #",
+            "link_account": "🔗 关联账户 #",
+            "linked": "✔ 已关联 #",
+            "meta": "{campaign}  ·  {drops}个掉宝，最多{minutes}分钟  ·  {where}  ·  {link} #",
+            "no_campaigns": "未来一周没有匹配的掉宝活动。 #",
+            "no_data": "暂无活动数据——请先登录并等待库存加载完成，然后点击“刷新”。 #",
+            "not_linked": "✖ 未关联 #",
+            "nothing_selected": "⚠ 未勾选任何活动——请先选择至少一个掉宝活动。 #",
+            "only_earnable": "仅显示我可获得的（账户已关联） #",
+            "refresh": "🔄 从Twitch刷新 #",
+            "refreshing": "⏳ 正在从Twitch刷新...（几秒后更新） #",
+            "status_count": "本周共{count}个掉宝活动，已根据您的优先列表预选{selected}个。 #"
         }
     }
 }

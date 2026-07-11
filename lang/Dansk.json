@@ -47,13 +47,15 @@
             "main": "Main",
             "inventory": "Beholdning",
             "settings": "Indstillinger",
-            "help": "Hjælp"
+            "help": "Hjælp",
+            "this_week": "Denne uge #"
         },
         "tray": {
             "notification_title": "Mined Belønning",
             "minimize": "Minimer til systembakken",
             "show": "Vis",
-            "quit": "Afslut"
+            "quit": "Afslut",
+            "new_campaign": "Ny kampagne #"
         },
         "login": {
             "name": "Login formular",
@@ -85,14 +87,18 @@
             "campaign": "Kampagne:",
             "remaining": "{time} tilbage",
             "drop_progress": "Fremskridt:",
-            "campaign_progress": "Fremskridt:"
+            "campaign_progress": "Fremskridt:",
+            "eta": "færdig ≈ {time} #",
+            "transport": "Visningsmetode: {transport} #",
+            "unverified": "Ikke bekræftet i {minutes} min ⚠ #",
+            "verified": "Bekræftet af Twitch ✔ #"
         },
         "channels": {
             "name": "Kanaler",
             "switch": "Skift",
-            "online": "ONLINE  \u2714",
-            "pending": "OFFLINE \u23f3",
-            "offline": "OFFLINE \u274c",
+            "online": "ONLINE  ✔",
+            "pending": "OFFLINE ⏳",
+            "offline": "OFFLINE ❌",
             "headings": {
                 "channel": "Kanal",
                 "status": "Status",
@@ -112,13 +118,13 @@
                 "refresh": "Opdater"
             },
             "status": {
-                "linked": "Forbundet \u2714",
-                "not_linked": "Ikke forbundet \u274c",
-                "active": "Aktiv \u2714",
-                "upcoming": "Kommende \u23f3",
-                "expired": "Udløbet \u274c",
-                "claimed": "Hentet \u2714",
-                "ready_to_claim": "Klar til at hente \u23f3"
+                "linked": "Forbundet ✔",
+                "not_linked": "Ikke forbundet ❌",
+                "active": "Aktiv ✔",
+                "upcoming": "Kommende ⏳",
+                "expired": "Udløbet ❌",
+                "claimed": "Hentet ✔",
+                "ready_to_claim": "Klar til at hente ⏳"
             },
             "starts": "Starter: {time}",
             "ends": "Slutter: {time}",
@@ -126,7 +132,8 @@
             "all_channels": "Alle",
             "and_more": "og {amount} mere...",
             "percent_progress": "{percent} af {minutes} minutter",
-            "minutes_progress": "{minutes} minutter"
+            "minutes_progress": "{minutes} minutter",
+            "eta": "≈ {time} tilbage #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Bakkemeddelelser: ",
                 "priority_only": "Kun prioritet: ",
                 "dark_mode": "Mørk tilstand: ",
-                "proxy": "Proxy (kræver genstart):"
+                "proxy": "Proxy (kræver genstart):",
+                "skip_unfinishable": "Spring kampagner over, der ikke kan fuldføres i tide #: ",
+                "update_check": "Søg efter opdateringer ved opstart #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Afsendelse af testbeskeden mislykkedes. #",
+                "webhook_test_sent": "Testbesked sendt. #",
+                "webhook_url": "Discord webhook-URL #: "
             },
             "game_name": "Spilnavn",
             "priority": "Prioritet",
@@ -153,7 +166,45 @@
             "how_it_works": "Hvordan virker det?",
             "how_it_works_text": "Hvert ~60. sekund sender applikationen en \"set minut\"-begivenhed til den kanal, der i øjeblikket bliver set - dette er nok til at øge faldet. Bemærk, at dette helt omgår behovet for at downloade enhver faktisk stream video og lyd. For at holde status (ONLINE eller OFFLINE) for kanalerne opdateret, er der etableret en websocket-forbindelse, der modtager begivenheder om streams, der går op eller ned, eller opdateringer vedrørende det aktuelle antal seere.",
             "getting_started": "Kom igang",
-            "getting_started_text": "1. Log ind på applikationen.\n2. Sørg for, at din Twitch-konto er linket til alle kampagner, du er interesseret i at mine.\n3. Hvis du bare er interesseret i at mine alt, skal du fjerne markeringen i \"Kun prioritet\" og trykke på \"Genindlæs\".\n4. Hvis du ønsker at mine specifikke spil først, skal du bruge listen \"Prioritet\" til at opsætte en ordnet liste over spil efter eget valg. Spil fra toppen af ​​listen vil blive forsøgt at blive minet først, før dem nederst på listen.\n5. Hold indstillingen \"Kun prioritet\" markeret for at undgå at mine spil, der ikke er på prioritetslisten. Eller ej - det er op til dig.\n6. Brug listen \"Ekskluder\" til at fortælle applikationen, hvilke spil der aldrig bør mines.\n7. Ændring af indholdet af en af ​​listerne eller ændring af tilstanden for \"Kun prioritet\"-indstillingen kræver, at du trykker på \"Genindlæs\" for at ændringerne træder i kraft."
+            "getting_started_text": "1. Log ind på applikationen.\n2. Sørg for, at din Twitch-konto er linket til alle kampagner, du er interesseret i at mine.\n3. Hvis du bare er interesseret i at mine alt, skal du fjerne markeringen i \"Kun prioritet\" og trykke på \"Genindlæs\".\n4. Hvis du ønsker at mine specifikke spil først, skal du bruge listen \"Prioritet\" til at opsætte en ordnet liste over spil efter eget valg. Spil fra toppen af ​​listen vil blive forsøgt at blive minet først, før dem nederst på listen.\n5. Hold indstillingen \"Kun prioritet\" markeret for at undgå at mine spil, der ikke er på prioritetslisten. Eller ej - det er op til dig.\n6. Brug listen \"Ekskluder\" til at fortælle applikationen, hvilke spil der aldrig bør mines.\n7. Ændring af indholdet af en af ​​listerne eller ændring af tilstanden for \"Kun prioritet\"-indstillingen kræver, at du trykker på \"Genindlæs\" for at ændringerne træder i kraft.",
+            "invalidate": {
+                "button": "Ugyldiggør #",
+                "text": "Ugyldiggør autorisationstokenet (log ud) #:"
+            },
+            "verify": {
+                "button": "Verificer #",
+                "match": "Fremskridtet på serveren stemmer overens med den lokale tilstand. #",
+                "mismatch": "Uoverensstemmelse! Lokalt: {local} min, server: {server} min for \"{drop}\". #",
+                "no_drop": "Der er ingen aktivt minet belønning at verificere. #",
+                "text": "Verificer belønningens fremskridt mod Twitch-serverne #:"
+            }
+        },
+        "session": {
+            "summary": "Session: {drops} belønninger hentet, {minutes} min minet, {campaigns} kampagner fuldført #"
+        },
+        "update": {
+            "available": "Ny version tilgængelig: {version} #",
+            "latest": "Du kører den nyeste version. #"
+        },
+        "weekly": {
+            "applied": "✅ Anvendte {count} spil: {games}. Genindlæser… #",
+            "apply": "✅ Anvend valg ▶ begynd at mine #",
+            "badge_active": "● {days}d tilbage #",
+            "badge_upcoming": "◷ om {days}d #",
+            "channels_any": "enhver kanal #",
+            "channels_some": "{count} kanal(er) #",
+            "intro": "Markér de kampagner, du vil mine denne uge, og tryk derefter på Anvend. Mineren vil prioritere disse spil og hente dem fra deltagende kanaler, der er live. #",
+            "link_account": "🔗 Link konto #",
+            "linked": "✔ linket #",
+            "meta": "{campaign}  ·  {drops} belønning(er), op til {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Ingen kampagner matcher for den kommende uge. #",
+            "no_data": "Ingen kampagnedata endnu — log ind og lad beholdningen blive indlæst, og tryk derefter på Opdater. #",
+            "not_linked": "✖ ikke linket #",
+            "nothing_selected": "⚠ Intet markeret — vælg mindst én kampagne først. #",
+            "only_earnable": "Vis kun dem, jeg kan optjene (konto linket) #",
+            "refresh": "🔄 Opdater fra Twitch #",
+            "refreshing": "⏳ Opdaterer fra Twitch… (opdateres om få sekunder) #",
+            "status_count": "{count} kampagne(r) denne uge. {selected} forhåndsvalgt fra din prioritetsliste. #"
         }
     }
 }

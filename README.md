@@ -8,6 +8,11 @@
 > [releases page](https://github.com/Nagyhoho1234/TwitchDropsMiner/releases).
 > **This fork is not a long-term maintained project.** All changes have been offered to the upstream
 > maintainer (MIT — free to cherry-pick). Once upstream ships its own fixes, please switch back to it.
+>
+> **About `#` in translations:** UI texts ending with `#` are machine-translated and not yet
+> reviewed by a native speaker (English and Hungarian are fully reviewed). If a marked string
+> reads wrong in your language, corrections are very welcome — fix the string in `lang/<language>.json`,
+> drop the trailing `#`, and open a PR.
 
 This application allows you to AFK mine timed Twitch drops, without having to worry about switching channels when the one you were watching goes offline, claiming the drops, or even receiving the stream data itself. This helps you save on bandwidth and hassle.
 

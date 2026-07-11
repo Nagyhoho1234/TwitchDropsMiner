@@ -47,13 +47,15 @@
             "main": "Principale",
             "inventory": "Inventario",
             "settings": "Impostazioni",
-            "help": "Aiuto"
+            "help": "Aiuto",
+            "this_week": "Questa Settimana #"
         },
         "tray": {
             "notification_title": "Premio Ottenuto",
             "minimize": "Minimizza nella barra delle applicazioni",
             "show": "Mostra",
-            "quit": "Esci"
+            "quit": "Esci",
+            "new_campaign": "Nuova Campagna #"
         },
         "login": {
             "name": "Dettagli Login",
@@ -85,14 +87,18 @@
             "campaign": "Campagna:",
             "remaining": "{time} rimanenti",
             "drop_progress": "Progresso:",
-            "campaign_progress": "Progresso:"
+            "campaign_progress": "Progresso:",
+            "eta": "fine ≈ {time} #",
+            "transport": "Metodo di visualizzazione: {transport} #",
+            "unverified": "Non confermato da {minutes} min ⚠ #",
+            "verified": "Confermato da Twitch ✔ #"
         },
         "channels": {
             "name": "Canali",
             "switch": "Cambia",
-            "online": "ONLINE  \u2714",
-            "pending": "OFFLINE \u23f3",
-            "offline": "OFFLINE \u274c",
+            "online": "ONLINE  ✔",
+            "pending": "OFFLINE ⏳",
+            "offline": "OFFLINE ❌",
             "headings": {
                 "channel": "Canale",
                 "status": "Stato",
@@ -112,13 +118,13 @@
                 "refresh": "Aggiorna"
             },
             "status": {
-                "linked": "Collegato \u2714",
-                "not_linked": "Non collegato \u274c",
-                "active": "Attivo \u2714",
-                "upcoming": "In arrivo \u23f3",
-                "expired": "Scaduto \u274c",
-                "claimed": "Riscattato \u2714",
-                "ready_to_claim": "Pronto per essere riscattato \u23f3"
+                "linked": "Collegato ✔",
+                "not_linked": "Non collegato ❌",
+                "active": "Attivo ✔",
+                "upcoming": "In arrivo ⏳",
+                "expired": "Scaduto ❌",
+                "claimed": "Riscattato ✔",
+                "ready_to_claim": "Pronto per essere riscattato ⏳"
             },
             "starts": "Inizia: {time}",
             "ends": "Finisce: {time}",
@@ -126,7 +132,8 @@
             "all_channels": "Tutti",
             "and_more": "e altri {amount}...",
             "percent_progress": "{percent} di {minutes} minuti",
-            "minutes_progress": "{minutes} minuti"
+            "minutes_progress": "{minutes} minuti",
+            "eta": "≈ {time} rimanenti #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Notifiche: ",
                 "dark_mode": "Modalità scura: ",
                 "priority_only": "Solo priorità: ",
-                "proxy": "Proxy (richiede il riavvio):"
+                "proxy": "Proxy (richiede il riavvio):",
+                "skip_unfinishable": "Salta le campagne che non possono essere completate in tempo #: ",
+                "update_check": "Controlla gli aggiornamenti all'avvio #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Invio del messaggio di prova fallito. #",
+                "webhook_test_sent": "Messaggio di prova inviato. #",
+                "webhook_url": "URL del webhook di Discord #: "
             },
             "game_name": "Nome del gioco",
             "priority": "Priorità",
@@ -153,7 +166,45 @@
             "how_it_works": "Come funziona",
             "how_it_works_text": "Ogni ~60 secondi, l'applicazione invia un evento \"minuto guardato\" al canale che stai guardando - questo è sufficiente per far avanzare il progresso dei drop. Da notare che questo bypassa completamente la necessità di scaricare qualsiasi video o audio della diretta. Per mantenere lo stato (ONLINE o OFFLINE) dei canali aggiornato, c'è una connessione websocket stabilita che riceve eventi sui canali che vanno online o offline, o aggiornamenti riguardanti il numero attuale di spettatori.",
             "getting_started": "Per iniziare",
-            "getting_started_text": "1. Effettua il login nell'applicazione.\n2. Assicurati che il tuo account Twitch sia collegato a tutte le campagne per cui sei interessato a ottenere i drop.\n3. Se sei interessato a ottenere tutto, deseleziona \"Solo priorità\" e premi su \"Ricarica\".\n4. Se vuoi ottenere prima giochi specifici, usa la lista \"Priorità\" per impostare una lista ordinata di giochi a tua scelta. I giochi in cima alla lista verranno ottenuti prima.\n5. Mantieni l'opzione \"Solo priorità\" selezionata, per evitare di ottenere giochi che non sono nella lista delle priorità. Oppure non farlo - dipende da te.\n6. Usa la lista \"Escludi\" per dire all'applicazione quali giochi non devono mai essere ottenuti.\n7. Cambiare il contenuto di una delle liste, o cambiare lo stato dell'opzione \"Solo priorità\", richiede di premere su \"Ricarica\" perché le modifiche abbiano effetto."
+            "getting_started_text": "1. Effettua il login nell'applicazione.\n2. Assicurati che il tuo account Twitch sia collegato a tutte le campagne per cui sei interessato a ottenere i drop.\n3. Se sei interessato a ottenere tutto, deseleziona \"Solo priorità\" e premi su \"Ricarica\".\n4. Se vuoi ottenere prima giochi specifici, usa la lista \"Priorità\" per impostare una lista ordinata di giochi a tua scelta. I giochi in cima alla lista verranno ottenuti prima.\n5. Mantieni l'opzione \"Solo priorità\" selezionata, per evitare di ottenere giochi che non sono nella lista delle priorità. Oppure non farlo - dipende da te.\n6. Usa la lista \"Escludi\" per dire all'applicazione quali giochi non devono mai essere ottenuti.\n7. Cambiare il contenuto di una delle liste, o cambiare lo stato dell'opzione \"Solo priorità\", richiede di premere su \"Ricarica\" perché le modifiche abbiano effetto.",
+            "invalidate": {
+                "button": "Invalida #",
+                "text": "Invalida il token di autenticazione (logout) #:"
+            },
+            "verify": {
+                "button": "Verifica #",
+                "match": "Il progresso lato server corrisponde allo stato locale. #",
+                "mismatch": "Discrepanza! Locale: {local} min, server: {server} min per \"{drop}\". #",
+                "no_drop": "Non c'è nessun drop in corso da verificare. #",
+                "text": "Verifica il progresso dei drop con i server di Twitch #:"
+            }
+        },
+        "session": {
+            "summary": "Sessione: {drops} drop riscattati, {minutes} min guardati, {campaigns} campagne completate #"
+        },
+        "update": {
+            "available": "Nuova versione disponibile: {version} #",
+            "latest": "Stai usando l'ultima versione. #"
+        },
+        "weekly": {
+            "applied": "✅ {count} gioco/giochi applicati: {games}. Ricaricando… #",
+            "apply": "✅ Applica selezione ▶ inizia a ottenere i drop #",
+            "badge_active": "● {days}g rimanenti #",
+            "badge_upcoming": "◷ tra {days}g #",
+            "channels_any": "qualsiasi canale #",
+            "channels_some": "{count} canale/i #",
+            "intro": "Spunta le campagne che vuoi ottenere questa settimana, poi premi Applica. Il miner darà priorità a quei giochi e li raccoglierà dai canali partecipanti in diretta. #",
+            "link_account": "🔗 Collega account #",
+            "linked": "✔ collegato #",
+            "meta": "{campaign}  ·  {drops} drop, fino a {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Nessuna campagna corrisponde per la prossima settimana. #",
+            "no_data": "Ancora nessun dato sulle campagne — effettua il login e lascia che l'inventario finisca di caricarsi, poi premi Aggiorna. #",
+            "not_linked": "✖ non collegato #",
+            "nothing_selected": "⚠ Nessuna spunta — seleziona prima almeno una campagna. #",
+            "only_earnable": "Mostra solo quelle che posso ottenere (account collegato) #",
+            "refresh": "🔄 Aggiorna da Twitch #",
+            "refreshing": "⏳ Aggiornamento da Twitch… (si aggiorna tra qualche secondo) #",
+            "status_count": "{count} campagna/e questa settimana. {selected} preselezionate dalla tua lista delle priorità. #"
         }
     }
 }

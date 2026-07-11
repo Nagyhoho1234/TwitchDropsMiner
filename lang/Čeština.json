@@ -40,13 +40,15 @@
             "main": "Hlavní Panel",
             "inventory": "Inventář",
             "settings": "Nastavení",
-            "help": "Nápověda"
+            "help": "Nápověda",
+            "this_week": "Tento Týden #"
         },
         "tray": {
             "notification_title": "Začít sbírat dropy",
             "minimize": "Minimalizovat",
             "show": "Zobrazit",
-            "quit": "Ukončit"
+            "quit": "Ukončit",
+            "new_campaign": "Nová kampaň #"
         },
         "login": {
             "name": "Přihlášení k službě Twitch",
@@ -78,14 +80,18 @@
             "campaign": "Kampaň:",
             "remaining": "Zbývá {time}",
             "drop_progress": "Průběh dropu:",
-            "campaign_progress": "Průběh kampaňe:"
+            "campaign_progress": "Průběh kampaňe:",
+            "eta": "hotovo ≈ {time} #",
+            "transport": "Metoda sledování: {transport} #",
+            "unverified": "Nepotvrzeno {minutes} min ⚠ #",
+            "verified": "Potvrzeno službou Twitch ✔ #"
         },
         "channels": {
             "name": "Název",
             "switch": "Přepnout",
-            "online": "ONLINE  \u2714",
-            "pending": "PRŮBĚH \u23f3",
-            "offline": "OFFLINE \u274c",
+            "online": "ONLINE  ✔",
+            "pending": "PRŮBĚH ⏳",
+            "offline": "OFFLINE ❌",
             "headings": {
                 "channel": "Kanál",
                 "game": "Hra",
@@ -105,13 +111,13 @@
                 "refresh": "Obnovit"
             },
             "status": {
-                "linked": "ŽIVĚ \u2714",
-                "not_linked": "Zatím nejsou dostupné žádné kanály \u274c",
-                "active": "ŽIVĚ \u2714",
-                "upcoming": "Nadcházející \u23f3",
-                "expired": "Ukončeno \u274c",
-                "claimed": "Vyzvednuto \u2714",
-                "ready_to_claim": "Připraveno k vyzvednutí \u23f3"
+                "linked": "ŽIVĚ ✔",
+                "not_linked": "Zatím nejsou dostupné žádné kanály ❌",
+                "active": "ŽIVĚ ✔",
+                "upcoming": "Nadcházející ⏳",
+                "expired": "Ukončeno ❌",
+                "claimed": "Vyzvednuto ✔",
+                "ready_to_claim": "Připraveno k vyzvednutí ⏳"
             },
             "starts": "Začíná: {time}",
             "ends": "Začíná: {time}",
@@ -119,7 +125,8 @@
             "all_channels": "Všechny kanály",
             "and_more": "Je tu {amount} ...",
             "percent_progress": "{minutes} minut {percent}",
-            "minutes_progress": "{minutes} minut"
+            "minutes_progress": "{minutes} minut",
+            "eta": "≈ zbývá {time} #"
         },
         "settings": {
             "general": {
@@ -128,7 +135,13 @@
                 "tray": "Automaticky spusti minimalizovaně: ",
                 "priority_only": "Pouze prioritní: ",
                 "dark_mode": "Tmavý režim: ",
-                "proxy": "Proxy:"
+                "proxy": "Proxy:",
+                "skip_unfinishable": "Přeskočit kampaně, které nelze dokončit včas #: ",
+                "update_check": "Kontrolovat aktualizace při spuštění #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Odeslání testovací zprávy se nezdařilo. #",
+                "webhook_test_sent": "Testovací zpráva odeslána. #",
+                "webhook_url": "URL Discord webhooku #: "
             },
             "game_name": "Název Hry",
             "priority": "Priorita",
@@ -145,7 +158,45 @@
             "how_it_works": "Jak to funguje",
             "how_it_works_text": "Každých ~60 sekund aplikace odešle událost 'sledované minuty' na aktuálně sledovaný kanál - to stačí k posunu umístění. Všimněte si, že tímto způsobem zcela odpadá nutnost stahovat skutečné streamované video a zvuk. Aby byl stav kanálu (online nebo offline) stále aktuální, je navázáno spojení přes websocket, které přijímá události o spuštění nebo vypnutí streamů nebo aktualizace o aktuálním počtu diváků.",
             "getting_started": "Jak začít",
-            "getting_started_text": "1. Přihlaste se do aplikace. \n2. Ujistěte se, že je váš účet Twitch spojen se všemi reklamními sériemi, které chcete těžit. \n3. Pokud chcete klepnout pouze na veškerý obsah, zrušte zaškrtnutí políčka 'Pouze prioritní' a stiskněte tlačítko 'Obnovit'. \n4. Pokud se chcete nejprve věnovat konkrétním hrám, použijte seznam 'Prioritní' a nastavte si pořadí vybraných her. Nejprve se vyzkouší hry na začátku seznamu a poté hry na konci seznamu. \n5. Ponechte zaškrtnutou možnost 'Pouze prioritní', abyste se vyhnuli vyhledávání her, které nejsou na seznamu priorit. Nebo ne - záleží na vás. \n6. Pomocí seznamu 'vyloučit' můžete aplikaci sdělit, které hry by neměly být vytěženy. \n7. Změna obsahu obou seznamů nebo stavu možnosti Pouze prioritní vyžaduje stisknutí tlačítka Znovu načíst, aby se změna projevila."
+            "getting_started_text": "1. Přihlaste se do aplikace. \n2. Ujistěte se, že je váš účet Twitch spojen se všemi reklamními sériemi, které chcete těžit. \n3. Pokud chcete klepnout pouze na veškerý obsah, zrušte zaškrtnutí políčka 'Pouze prioritní' a stiskněte tlačítko 'Obnovit'. \n4. Pokud se chcete nejprve věnovat konkrétním hrám, použijte seznam 'Prioritní' a nastavte si pořadí vybraných her. Nejprve se vyzkouší hry na začátku seznamu a poté hry na konci seznamu. \n5. Ponechte zaškrtnutou možnost 'Pouze prioritní', abyste se vyhnuli vyhledávání her, které nejsou na seznamu priorit. Nebo ne - záleží na vás. \n6. Pomocí seznamu 'vyloučit' můžete aplikaci sdělit, které hry by neměly být vytěženy. \n7. Změna obsahu obou seznamů nebo stavu možnosti Pouze prioritní vyžaduje stisknutí tlačítka Znovu načíst, aby se změna projevila.",
+            "invalidate": {
+                "button": "Zneplatnit #",
+                "text": "Zneplatnit autentizační token (odhlásit se) #:"
+            },
+            "verify": {
+                "button": "Ověřit #",
+                "match": "Průběh na serveru odpovídá místnímu stavu. #",
+                "mismatch": "Neshoda! Místně: {local} min, server: {server} min pro \"{drop}\". #",
+                "no_drop": "Není žádný aktivně těžený drop k ověření. #",
+                "text": "Ověřit průběh dropu vůči serverům služby Twitch #:"
+            }
+        },
+        "session": {
+            "summary": "Relace: vyzvednuté dropy: {drops}, vytěžený čas: {minutes} min, dokončené kampaně: {campaigns} #"
+        },
+        "update": {
+            "available": "Nová verze k dispozici: {version} #",
+            "latest": "Používáte nejnovější verzi. #"
+        },
+        "weekly": {
+            "applied": "✅ Použity hry ({count}): {games}. Obnovování… #",
+            "apply": "✅ Použít výběr ▶ začít těžit #",
+            "badge_active": "● zbývá {days}d #",
+            "badge_upcoming": "◷ za {days}d #",
+            "channels_any": "libovolný kanál #",
+            "channels_some": "kanály: {count} #",
+            "intro": "Zaškrtněte kampaně, které chcete tento týden farmit, a poté stiskněte Použít. Aplikace upřednostní tyto hry a bude je sbírat z živě vysílajících zúčastněných kanálů. #",
+            "link_account": "🔗 Propojit účet #",
+            "linked": "✔ propojeno #",
+            "meta": "{campaign}  ·  dropy: {drops}, až {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Pro nadcházející týden neodpovídají žádné kampaně. #",
+            "no_data": "Zatím žádná data o kampaních — přihlaste se, nechte inventář dokončit načítání a poté stiskněte Obnovit. #",
+            "not_linked": "✖ nepropojeno #",
+            "nothing_selected": "⚠ Nic není zaškrtnuto — nejprve vyberte alespoň jednu kampaň. #",
+            "only_earnable": "Zobrazit pouze ty, které mohu získat (propojený účet) #",
+            "refresh": "🔄 Obnovit z Twitche #",
+            "refreshing": "⏳ Obnovování z Twitche… (aktualizace za několik sekund) #",
+            "status_count": "Kampaně tento týden: {count}. Předvybrané ze seznamu priorit: {selected}. #"
         }
     }
 }

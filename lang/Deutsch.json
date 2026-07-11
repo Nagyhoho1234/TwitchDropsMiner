@@ -47,13 +47,15 @@
             "main": "Hauptseite",
             "inventory": "Inventar",
             "settings": "Einstellungen",
-            "help": "Hilfe"
+            "help": "Hilfe",
+            "this_week": "Diese Woche #"
         },
         "tray": {
             "notification_title": "Drop abgeholt",
             "minimize": "Minimiere ins System Tray",
             "show": "Anzeigen",
-            "quit": "Beenden"
+            "quit": "Beenden",
+            "new_campaign": "Neue Kampagne #"
         },
         "login": {
             "name": "Login",
@@ -85,7 +87,11 @@
             "campaign": "Kampagne:",
             "remaining": "{time} verbleibend",
             "drop_progress": "Fortschritt:",
-            "campaign_progress": "Fortschritt:"
+            "campaign_progress": "Fortschritt:",
+            "eta": "fertig ≈ {time} #",
+            "transport": "Wiedergabemethode: {transport} #",
+            "unverified": "Nicht bestätigt seit {minutes} Min. ⚠ #",
+            "verified": "Von Twitch bestätigt ✔ #"
         },
         "channels": {
             "name": "Kanäle",
@@ -126,7 +132,8 @@
             "all_channels": "Alle",
             "and_more": "und {amount} weitere...",
             "percent_progress": "{percent} von {minutes} Minuten",
-            "minutes_progress": "{minutes} Minuten"
+            "minutes_progress": "{minutes} Minuten",
+            "eta": "≈ {time} verbleibend #"
         },
         "settings": {
             "general": {
@@ -135,7 +142,13 @@
                 "tray": "Autostart ins System Tray: ",
                 "priority_only": "Nur Priorität: ",
                 "dark_mode": "Dunkler Modus: ",
-                "proxy": "Proxy (Erfordert Neustart):"
+                "proxy": "Proxy (Erfordert Neustart):",
+                "skip_unfinishable": "Kampagnen überspringen, die nicht rechtzeitig abgeschlossen werden können #: ",
+                "update_check": "Beim Start nach Updates suchen #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Senden der Testnachricht fehlgeschlagen. #",
+                "webhook_test_sent": "Testnachricht gesendet. #",
+                "webhook_url": "Discord-Webhook-URL #: "
             },
             "game_name": "Spiel",
             "priority": "Priorität",
@@ -152,7 +165,45 @@
             "how_it_works": "So funktioniert's",
             "how_it_works_text": "Alle ~60 Sekunden sendet die Anwendung ein \"Minute zugesehen\" Ereignis an den Kanal, dem gerade zugesehen wird.\nDies reicht aus, um den Drop voranzutreiben. Auf diese Weise ist es nicht nötig den Stream herunterzuladen und spart Bandbreite.\nUm den Online- oder Offline-Status der Kanäle aktuell zu halten, wird eine Websocket-Verbindung eingerichtet,\ndie die Kanäle auf ihren Status überprüft.",
             "getting_started": "Erste Schritte",
-            "getting_started_text": "• In der Anwendung anmelden.\n• Stelle sicher, dass das Twitch-Konto mit allen Kampagnen verknüpft ist, an denen Interesse besteht.\n• Sollen alle Drops bearbeitet werden, entferne den Haken bei \"Nur Priorität\" und drücke \"Neu laden\".\n• Sollen nur bestimmte Spiele in betracht gezogen werden, verwende die \"Priorität\" Liste um die Wahl nach Spielen einzugrenzen.\n• Die Liste priorisiert von oben nach unten.\n• Die Option \"Nur Priorität\" verhindert, dass Spiele, die nicht auf der Prioritätenliste stehen, bearbeitet werden.\n• Mit der Liste \"Ausschließen\", ist es möglich Spiele zu filtern, die niemals in betracht gezogen werden sollen.\n• Wenn Listen oder Optionen angepasst wurden, muss \"Neu laden\" gedrückt werden, damit die Änderungen übernommen werden."
+            "getting_started_text": "• In der Anwendung anmelden.\n• Stelle sicher, dass das Twitch-Konto mit allen Kampagnen verknüpft ist, an denen Interesse besteht.\n• Sollen alle Drops bearbeitet werden, entferne den Haken bei \"Nur Priorität\" und drücke \"Neu laden\".\n• Sollen nur bestimmte Spiele in betracht gezogen werden, verwende die \"Priorität\" Liste um die Wahl nach Spielen einzugrenzen.\n• Die Liste priorisiert von oben nach unten.\n• Die Option \"Nur Priorität\" verhindert, dass Spiele, die nicht auf der Prioritätenliste stehen, bearbeitet werden.\n• Mit der Liste \"Ausschließen\", ist es möglich Spiele zu filtern, die niemals in betracht gezogen werden sollen.\n• Wenn Listen oder Optionen angepasst wurden, muss \"Neu laden\" gedrückt werden, damit die Änderungen übernommen werden.",
+            "invalidate": {
+                "button": "Invalidieren #",
+                "text": "Authentifizierungs-Token invalidieren (abmelden) #:"
+            },
+            "verify": {
+                "button": "Überprüfen #",
+                "match": "Serverseitiger Fortschritt stimmt mit dem lokalen Stand überein. #",
+                "mismatch": "Abweichung! Lokal: {local} Min., Server: {server} Min. für \"{drop}\". #",
+                "no_drop": "Es gibt keinen aktiv bearbeiteten Drop zum Überprüfen. #",
+                "text": "Drop-Fortschritt mit den Twitch-Servern abgleichen #:"
+            }
+        },
+        "session": {
+            "summary": "Sitzung: {drops} Drops abgeholt, {minutes} Min. zugesehen, {campaigns} Kampagnen abgeschlossen #"
+        },
+        "update": {
+            "available": "Neue Version verfügbar: {version} #",
+            "latest": "Du verwendest die neueste Version. #"
+        },
+        "weekly": {
+            "applied": "✅ {count} Spiel(e) übernommen: {games}. Neu laden… #",
+            "apply": "✅ Auswahl übernehmen ▶ Farmen starten #",
+            "badge_active": "● noch {days} T. #",
+            "badge_upcoming": "◷ in {days} T. #",
+            "channels_any": "beliebiger Kanal #",
+            "channels_some": "{count} Kanal/Kanäle #",
+            "intro": "Wähle die Kampagnen aus, die du diese Woche farmen möchtest, und drücke dann auf \"Übernehmen\". Der Miner priorisiert diese Spiele und sammelt sie von teilnehmenden Live-Kanälen. #",
+            "link_account": "🔗 Konto verknüpfen #",
+            "linked": "✔ verknüpft #",
+            "meta": "{campaign}  ·  {drops} Drop(s), bis zu {minutes} Min.  ·  {where}  ·  {link} #",
+            "no_campaigns": "Keine passenden Kampagnen für die kommende Woche. #",
+            "no_data": "Noch keine Kampagnendaten — melde dich an und warte, bis das Inventar vollständig geladen ist, dann drücke auf \"Aktualisieren\". #",
+            "not_linked": "✖ nicht verknüpft #",
+            "nothing_selected": "⚠ Nichts ausgewählt — wähle zuerst mindestens eine Kampagne aus. #",
+            "only_earnable": "Nur anzeigen, was ich erhalten kann (Konto verknüpft) #",
+            "refresh": "🔄 Von Twitch aktualisieren #",
+            "refreshing": "⏳ Wird von Twitch aktualisiert… (Aktualisierung in wenigen Sekunden) #",
+            "status_count": "{count} Kampagne(n) diese Woche. {selected} aus deiner Prioritätenliste vorausgewählt. #"
         }
     }
 }

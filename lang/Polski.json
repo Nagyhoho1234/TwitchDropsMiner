@@ -47,13 +47,15 @@
             "main": "Główna",
             "inventory": "Ekwipunek",
             "settings": "Ustawienia",
-            "help": "Pomoc"
+            "help": "Pomoc",
+            "this_week": "Ten tydzień #"
         },
         "tray": {
             "notification_title": "Drop odebrany",
             "minimize": "Zminimalizuj",
             "show": "Pokaż",
-            "quit": "Wyjdź"
+            "quit": "Wyjdź",
+            "new_campaign": "Nowa kampania #"
         },
         "login": {
             "name": "Logowanie",
@@ -85,7 +87,11 @@
             "campaign": "Kampania:",
             "remaining": "Pozostało: {time}",
             "drop_progress": "Postęp dropu:",
-            "campaign_progress": "Postęp kampanii:"
+            "campaign_progress": "Postęp kampanii:",
+            "eta": "koniec ≈ {time} #",
+            "transport": "Metoda oglądania: {transport} #",
+            "unverified": "Brak potwierdzenia od {minutes} min ⚠ #",
+            "verified": "Potwierdzone przez Twitcha ✔ #"
         },
         "channels": {
             "name": "Kanały",
@@ -126,7 +132,8 @@
             "all_channels": "Wszystkie kanały",
             "and_more": "i {amount} więcej...",
             "percent_progress": "{percent} z {minutes} min.",
-            "minutes_progress": "{minutes} min."
+            "minutes_progress": "{minutes} min.",
+            "eta": "≈ pozostało {time} #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Powiadomienia z zasobnika: ",
                 "dark_mode": "Tryb ciemny: ",
                 "priority_mode": "Tryb priorytetu: ",
-                "proxy": "Proxy (wymaga restartu):"
+                "proxy": "Proxy (wymaga restartu):",
+                "skip_unfinishable": "Pomijaj kampanie, których nie da się ukończyć na czas #: ",
+                "update_check": "Sprawdzaj aktualizacje przy uruchomieniu #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Wysłanie wiadomości testowej nie powiodło się. #",
+                "webhook_test_sent": "Wiadomość testowa została wysłana. #",
+                "webhook_url": "URL webhooka Discord #: "
             },
             "advanced": {
                 "name": "Zaawansowane",
@@ -165,7 +178,45 @@
             "how_it_works": "Jak to działa?",
             "how_it_works_text": "Co kilkanaście sekund aplikacja pobiera metadane strumienia, udając oglądanie streamu - to wystarczy, aby uzyskać postęp dropu. Zauważ, że w ten sposób możesz całkowicie pominąć konieczność pobierania rzeczywistego strumienia wideo i dźwięku. Do utrzymania statusu ONLINE lub OFFLINE kanałów używane jest połączenie WebSocket, które odbiera zdarzenia o zmianie statusu kanałów oraz na bieżąco aktualizuje liczbę widzów.",
             "getting_started": "Pierwsze kroki",
-            "getting_started_text": "1. Zaloguj się do aplikacji.\n2. Upewnij się, że Twoje konto Twitch jest połączone ze wszystkimi kampaniami, z których chcesz otrzymywać dropy.\n3. Zmień tryb priorytetu na coś innego niż „Tylko lista priorytetów” i kliknij „Przeładuj”, jeśli chcesz otrzymywać dropy ze wszystkich aktywnych kampanii.\n4. Użyj listy „Priorytety”, aby wybrać uporządkowaną listę gier, z których chcesz otrzymać dropy. Gry znajdujące się wyżej na liście będą miały wyższy priorytet przy zdobywaniu dropów.\n5. Wybierz opcję „Tylko lista priorytetów”, aby wykluczyć gry, które nie znajdują się na liście priorytetowej.\n6. Użyj listy „Wykluczone”, aby wskazać gry, z których przedmioty nigdy nie powinny być zdobywane.\n7. Zmiana zawartości list „Priorytety” i „Wykluczone” oraz opcji „Tryb priorytetu” wymaga kliknięcia „Przeładuj”, aby aplikacja mogła zastosować wprowadzone zmiany."
+            "getting_started_text": "1. Zaloguj się do aplikacji.\n2. Upewnij się, że Twoje konto Twitch jest połączone ze wszystkimi kampaniami, z których chcesz otrzymywać dropy.\n3. Zmień tryb priorytetu na coś innego niż „Tylko lista priorytetów” i kliknij „Przeładuj”, jeśli chcesz otrzymywać dropy ze wszystkich aktywnych kampanii.\n4. Użyj listy „Priorytety”, aby wybrać uporządkowaną listę gier, z których chcesz otrzymać dropy. Gry znajdujące się wyżej na liście będą miały wyższy priorytet przy zdobywaniu dropów.\n5. Wybierz opcję „Tylko lista priorytetów”, aby wykluczyć gry, które nie znajdują się na liście priorytetowej.\n6. Użyj listy „Wykluczone”, aby wskazać gry, z których przedmioty nigdy nie powinny być zdobywane.\n7. Zmiana zawartości list „Priorytety” i „Wykluczone” oraz opcji „Tryb priorytetu” wymaga kliknięcia „Przeładuj”, aby aplikacja mogła zastosować wprowadzone zmiany.",
+            "invalidate": {
+                "button": "Unieważnij #",
+                "text": "Unieważnij token uwierzytelniania (wyloguj) #:"
+            },
+            "verify": {
+                "button": "Zweryfikuj #",
+                "match": "Postęp po stronie serwera zgadza się ze stanem lokalnym. #",
+                "mismatch": "Niezgodność! Lokalnie: {local} min, serwer: {server} min dla \"{drop}\". #",
+                "no_drop": "Brak aktywnie zdobywanego dropu do zweryfikowania. #",
+                "text": "Zweryfikuj postęp dropu na serwerach Twitcha #:"
+            }
+        },
+        "session": {
+            "summary": "Sesja: odebrane dropy: {drops}, wydobyty czas: {minutes} min, ukończone kampanie: {campaigns} #"
+        },
+        "update": {
+            "available": "Dostępna nowa wersja: {version} #",
+            "latest": "Używasz najnowszej wersji. #"
+        },
+        "weekly": {
+            "applied": "✅ Zastosowano gry ({count}): {games}. Przeładowywanie… #",
+            "apply": "✅ Zastosuj wybór ▶ rozpocznij zdobywanie #",
+            "badge_active": "● zostało {days}d #",
+            "badge_upcoming": "◷ za {days}d #",
+            "channels_any": "dowolny kanał #",
+            "channels_some": "kanały: {count} #",
+            "intro": "Zaznacz kampanie, które chcesz farmić w tym tygodniu, a następnie kliknij Zastosuj. Aplikacja nada priorytet tym grom i będzie zbierać dropy z transmitujących na żywo kanałów biorących udział w kampanii. #",
+            "link_account": "🔗 Połącz konto #",
+            "linked": "✔ połączono #",
+            "meta": "{campaign}  ·  dropy: {drops}, do {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Brak pasujących kampanii na nadchodzący tydzień. #",
+            "no_data": "Brak danych o kampaniach — zaloguj się, poczekaj na pełne załadowanie ekwipunku, a następnie kliknij Odśwież. #",
+            "not_linked": "✖ nie połączono #",
+            "nothing_selected": "⚠ Nic nie zaznaczono — najpierw wybierz co najmniej jedną kampanię. #",
+            "only_earnable": "Pokaż tylko te, które mogę zdobyć (konto połączone) #",
+            "refresh": "🔄 Odśwież z Twitcha #",
+            "refreshing": "⏳ Odświeżanie z Twitcha… (aktualizacja za kilka sekund) #",
+            "status_count": "Kampanie w tym tygodniu: {count}. Wstępnie zaznaczone z listy priorytetów: {selected}. #"
         }
     }
 }

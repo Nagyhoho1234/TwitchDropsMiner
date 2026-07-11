@@ -47,13 +47,15 @@
             "main": "Général",
             "inventory": "Inventaire",
             "settings": "Paramètres",
-            "help": "Aide"
+            "help": "Aide",
+            "this_week": "Cette semaine #"
         },
         "tray": {
             "notification_title": "Drop miné",
             "minimize": "Réduire dans la barre des tâches",
             "show": "Afficher",
-            "quit": "Quitter"
+            "quit": "Quitter",
+            "new_campaign": "Nouvelle campagne #"
         },
         "login": {
             "name": "Formulaire de connexion",
@@ -85,7 +87,11 @@
             "campaign": "Campagne :",
             "remaining": "{time} restant",
             "drop_progress": "Avancement :",
-            "campaign_progress": "Avancement :"
+            "campaign_progress": "Avancement :",
+            "eta": "terminé ≈ {time} #",
+            "transport": "Méthode de visionnage : {transport} #",
+            "unverified": "Non confirmé depuis {minutes} min ⚠ #",
+            "verified": "Confirmé par Twitch ✔ #"
         },
         "channels": {
             "name": "Chaînes",
@@ -126,7 +132,8 @@
             "all_channels": "Toutes",
             "and_more": "et {amount} de plus...",
             "percent_progress": "{percent} de {minutes} minutes",
-            "minutes_progress": "{minutes} minutes"
+            "minutes_progress": "{minutes} minutes",
+            "eta": "≈ {time} restant #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Notifications dans la barre des tâches :",
                 "dark_mode": "Mode sombre : ",
                 "priority_mode": "Mode de priorité :",
-                "proxy": "Proxy (nécessite un redémarrage) :"
+                "proxy": "Proxy (nécessite un redémarrage) :",
+                "skip_unfinishable": "Ignorer les campagnes qui ne peuvent pas être terminées à temps  #: ",
+                "update_check": "Vérifier les mises à jour au démarrage  #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "L'envoi du message de test a échoué. #",
+                "webhook_test_sent": "Message de test envoyé. #",
+                "webhook_url": "URL du webhook Discord  #: "
             },
             "priority_modes": {
                 "priority_only": "Liste de priorité uniquement",
@@ -158,7 +171,45 @@
             "how_it_works": "Comment ça fonctionne",
             "how_it_works_text": "Toutes les quelques secondes, l'application fait semblant de regarder un flux particulier en récupérant les métadonnées du flux - ce qui suffit pour faire avancer les drops. Notez que cela contourne complètement le besoin de télécharger la vidéo et le son du flux réel. Pour maintenir à jour le statut (EN LIGNE ou HORS LIGNE) des chaînes, une connexion websocket est établie pour recevoir des événements sur les flux qui montent ou descendent, ou des mises à jour concernant le nombre actuel de spectateurs.",
             "getting_started": "Premiers pas",
-            "getting_started_text": "1. Connectez-vous à l'application.\n2. Assurez-vous que votre compte Twitch est lié à toutes les campagnes qui vous intéressent.\n3. Si vous souhaitez miner tout ce qui est possible, modifiez le mode de priorité en autre chose que \"Liste de priorité uniquement\" et appuyez sur \"Recharger\".\n4. Si vous souhaitez miner certains jeux en priorité, utilisez la liste \"Priorité\" pour définir un ordre de préférence des jeux de votre choix. Les jeux en haut de la liste seront minés en premier, avant ceux qui se trouvent plus bas dans la liste.\n5. Gardez le mode de priorité sur \"Liste de priorité uniquement\" pour éviter de miner des jeux qui ne sont pas dans la liste de priorité. Ou pas - c'est à vous de décider.\n6. Utilisez la liste \"Exclure\" pour indiquer à l'application les jeux qui ne doivent jamais être minés.\n7. Toute modification du contenu des listes ou du mode de priorité nécessite d'appuyer sur \"Recharger\" pour que les changements prennent effet."
+            "getting_started_text": "1. Connectez-vous à l'application.\n2. Assurez-vous que votre compte Twitch est lié à toutes les campagnes qui vous intéressent.\n3. Si vous souhaitez miner tout ce qui est possible, modifiez le mode de priorité en autre chose que \"Liste de priorité uniquement\" et appuyez sur \"Recharger\".\n4. Si vous souhaitez miner certains jeux en priorité, utilisez la liste \"Priorité\" pour définir un ordre de préférence des jeux de votre choix. Les jeux en haut de la liste seront minés en premier, avant ceux qui se trouvent plus bas dans la liste.\n5. Gardez le mode de priorité sur \"Liste de priorité uniquement\" pour éviter de miner des jeux qui ne sont pas dans la liste de priorité. Ou pas - c'est à vous de décider.\n6. Utilisez la liste \"Exclure\" pour indiquer à l'application les jeux qui ne doivent jamais être minés.\n7. Toute modification du contenu des listes ou du mode de priorité nécessite d'appuyer sur \"Recharger\" pour que les changements prennent effet.",
+            "invalidate": {
+                "button": "Invalider #",
+                "text": "Invalider le jeton d'authentification (se déconnecter)  #:"
+            },
+            "verify": {
+                "button": "Vérifier #",
+                "match": "La progression côté serveur correspond à l'état local. #",
+                "mismatch": "Différence ! Local : {local} min, serveur : {server} min pour \"{drop}\". #",
+                "no_drop": "Il n'y a aucun drop en cours de minage à vérifier. #",
+                "text": "Vérifier la progression des drops auprès des serveurs Twitch  #:"
+            }
+        },
+        "session": {
+            "summary": "Session : {drops} drops récupérés, {minutes} min minées, {campaigns} campagnes terminées #"
+        },
+        "update": {
+            "available": "Nouvelle version disponible : {version} #",
+            "latest": "Vous utilisez la dernière version. #"
+        },
+        "weekly": {
+            "applied": "✅ {count} jeu(x) appliqué(s) : {games}. Rechargement… #",
+            "apply": "✅ Appliquer la sélection ▶ lancer le minage #",
+            "badge_active": "● {days}j restants #",
+            "badge_upcoming": "◷ dans {days}j #",
+            "channels_any": "n'importe quelle chaîne #",
+            "channels_some": "{count} chaîne(s) #",
+            "intro": "Cochez les campagnes que vous souhaitez miner cette semaine, puis appuyez sur Appliquer. Le mineur donnera la priorité à ces jeux et les collectera sur les chaînes participantes en direct. #",
+            "link_account": "🔗 Lier le compte #",
+            "linked": "✔ lié #",
+            "meta": "{campaign}  ·  {drops} drop(s), jusqu'à {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Aucune campagne ne correspond pour la semaine à venir. #",
+            "no_data": "Aucune donnée de campagne pour le moment — connectez-vous et laissez l'inventaire finir de se charger, puis appuyez sur Actualiser. #",
+            "not_linked": "✖ non lié #",
+            "nothing_selected": "⚠ Rien de coché — sélectionnez d'abord au moins une campagne. #",
+            "only_earnable": "Afficher uniquement celles que je peux obtenir (compte lié) #",
+            "refresh": "🔄 Actualiser depuis Twitch #",
+            "refreshing": "⏳ Actualisation depuis Twitch… (mise à jour dans quelques secondes) #",
+            "status_count": "{count} campagne(s) cette semaine. {selected} présélectionnée(s) depuis votre liste de priorité. #"
         }
     }
 }

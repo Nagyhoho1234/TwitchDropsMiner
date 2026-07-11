@@ -47,13 +47,15 @@
             "main": "Umum",
             "inventory": "Inventaris",
             "settings": "Parameter",
-            "help": "Bantuan"
+            "help": "Bantuan",
+            "this_week": "Minggu Ini #"
         },
         "tray": {
             "notification_title": "Tambang drop",
             "minimize": "Meminimalkan di bilah tugas",
             "show": "Lihat",
-            "quit": "Keluar"
+            "quit": "Keluar",
+            "new_campaign": "Kampanye Baru #"
         },
         "login": {
             "name": "Formulir masuk",
@@ -85,7 +87,11 @@
             "campaign": "Kampanye :",
             "remaining": "{time} tersisa",
             "drop_progress": "Perkembangan :",
-            "campaign_progress": "Perkembangan :"
+            "campaign_progress": "Perkembangan :",
+            "eta": "selesai ≈ {time} #",
+            "transport": "Metode menonton : {transport} #",
+            "unverified": "Belum dikonfirmasi selama {minutes} menit ⚠ #",
+            "verified": "Dikonfirmasi oleh Twitch ✔ #"
         },
         "channels": {
             "name": "Saluran",
@@ -126,7 +132,8 @@
             "all_channels": "Semua",
             "and_more": "dan {amount} yang lainnya...",
             "percent_progress": "{percent} dari {minutes} menit",
-            "minutes_progress": "{minutes} menit"
+            "minutes_progress": "{minutes} menit",
+            "eta": "≈ {time} tersisa #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Pemberitahuan bilah tugas :",
                 "dark_mode": "Mode gelap: ",
                 "priority_only": "Prioritas saja :",
-                "proxy": "Proksi (harus dimulai ulang) :"
+                "proxy": "Proksi (harus dimulai ulang) :",
+                "skip_unfinishable": "Lewati kampanye yang tidak dapat diselesaikan tepat waktu  #:",
+                "update_check": "Periksa pembaruan saat memulai  #:",
+                "webhook_test": "Tes #",
+                "webhook_test_failed": "Pengiriman pesan tes gagal. #",
+                "webhook_test_sent": "Pesan tes telah dikirim. #",
+                "webhook_url": "URL webhook Discord  #:"
             },
             "game_name": "Nama game",
             "priority": "Prioritas",
@@ -153,7 +166,45 @@
             "how_it_works": "Cara kerja",
             "how_it_works_text": "Kira-kira setiap ~60 detik, aplikasi ini mengirimkan \"menit ditonton\" ke saluran yang sedang ditonton - yang cukup untuk membuat drop terus bergerak. Perhatikan bahwa hal ini sepenuhnya mengabaikan kebutuhan untuk mengunduh video dan audio dari streaming yang sebenarnya. Untuk menjaga agar status (ONLINE atau OFFLINE) saluran tetap terbaru, koneksi websocket dibuat untuk menerima peristiwa tentang streaming yang naik atau turun, atau pembaruan tentang jumlah penonton saat ini",
             "getting_started": "Mulai",
-            "getting_started_text": "1. Masuk ke aplikasi.\n2. Pastikan akun Twitch Anda ditautkan ke semua kampanye yang Anda minati.\n3. Jika Anda hanya ingin menambang semuanya, hapus centang pada \"Hanya Prioritas\" dan tekan \"Muat Ulang\".\n4. Jika Anda ingin menambang game tertentu terlebih dahulu, gunakan daftar \"Prioritas\" untuk menentukan daftar game pilihan Anda. Game yang berada di bagian atas daftar akan tergoda untuk ditambang terlebih dahulu, sebelum game yang berada di bagian bawah daftar.\n5. Biarkan opsi \"Prioritas saja\" dicentang untuk menghindari menambang game yang tidak ada dalam daftar prioritas. Atau tidak - terserah Anda.\n6. Gunakan daftar \"Kecualikan\" untuk memberi tahu aplikasi game mana yang tidak boleh ditambang.\n7. Untuk memodifikasi konten dari salah satu daftar atau mengubah status opsi \"Hanya Prioritas\", Anda perlu menekan \"Muat Ulang\" agar perubahan dapat diterapkan."
+            "getting_started_text": "1. Masuk ke aplikasi.\n2. Pastikan akun Twitch Anda ditautkan ke semua kampanye yang Anda minati.\n3. Jika Anda hanya ingin menambang semuanya, hapus centang pada \"Hanya Prioritas\" dan tekan \"Muat Ulang\".\n4. Jika Anda ingin menambang game tertentu terlebih dahulu, gunakan daftar \"Prioritas\" untuk menentukan daftar game pilihan Anda. Game yang berada di bagian atas daftar akan tergoda untuk ditambang terlebih dahulu, sebelum game yang berada di bagian bawah daftar.\n5. Biarkan opsi \"Prioritas saja\" dicentang untuk menghindari menambang game yang tidak ada dalam daftar prioritas. Atau tidak - terserah Anda.\n6. Gunakan daftar \"Kecualikan\" untuk memberi tahu aplikasi game mana yang tidak boleh ditambang.\n7. Untuk memodifikasi konten dari salah satu daftar atau mengubah status opsi \"Hanya Prioritas\", Anda perlu menekan \"Muat Ulang\" agar perubahan dapat diterapkan.",
+            "invalidate": {
+                "button": "Batalkan #",
+                "text": "Batalkan token otorisasi (keluar)  #:"
+            },
+            "verify": {
+                "button": "Verifikasi #",
+                "match": "Perkembangan di sisi server sesuai dengan status lokal. #",
+                "mismatch": "Tidak cocok! Lokal: {local} menit, server: {server} menit untuk \"{drop}\". #",
+                "no_drop": "Tidak ada drop yang sedang ditambang untuk diverifikasi. #",
+                "text": "Verifikasi perkembangan drop dengan server Twitch  #:"
+            }
+        },
+        "session": {
+            "summary": "Sesi : {drops} drop diklaim, {minutes} menit ditambang, {campaigns} kampanye selesai #"
+        },
+        "update": {
+            "available": "Versi baru tersedia : {version} #",
+            "latest": "Anda menjalankan versi terbaru. #"
+        },
+        "weekly": {
+            "applied": "✅ {count} game diterapkan : {games}. Memuat ulang… #",
+            "apply": "✅ Terapkan pilihan ▶ mulai menambang #",
+            "badge_active": "● sisa {days} hr #",
+            "badge_upcoming": "◷ dalam {days} hr #",
+            "channels_any": "saluran mana pun #",
+            "channels_some": "{count} saluran #",
+            "intro": "Centang kampanye yang ingin Anda tambang minggu ini, lalu tekan Terapkan. Penambang akan memprioritaskan game tersebut dan mengumpulkannya dari saluran peserta yang sedang siaran langsung. #",
+            "link_account": "🔗 Tautkan akun #",
+            "linked": "✔ ditautkan #",
+            "meta": "{campaign}  ·  {drops} drop, hingga {minutes} menit  ·  {where}  ·  {link} #",
+            "no_campaigns": "Tidak ada kampanye yang cocok untuk minggu mendatang. #",
+            "no_data": "Belum ada data kampanye — masuk dan tunggu inventaris selesai dimuat, lalu tekan Muat ulang. #",
+            "not_linked": "✖ tidak ditautkan #",
+            "nothing_selected": "⚠ Tidak ada yang dicentang — pilih setidaknya satu kampanye terlebih dahulu. #",
+            "only_earnable": "Hanya tampilkan yang bisa saya peroleh (akun tertaut) #",
+            "refresh": "🔄 Muat ulang dari Twitch #",
+            "refreshing": "⏳ Memuat ulang dari Twitch… (diperbarui dalam beberapa detik) #",
+            "status_count": "{count} kampanye minggu ini. {selected} terpilih otomatis dari daftar prioritas Anda. #"
         }
     }
 }

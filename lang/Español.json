@@ -47,13 +47,15 @@
             "main": "General",
             "inventory": "Inventario",
             "settings": "Configuración",
-            "help": "Ayuda"
+            "help": "Ayuda",
+            "this_week": "Esta semana #"
         },
         "tray": {
             "notification_title": "Drop minado",
             "minimize": "Minimizar a la bandeja",
             "show": "Mostrar",
-            "quit": "Salir"
+            "quit": "Salir",
+            "new_campaign": "Nueva campaña #"
         },
         "login": {
             "name": "Inicio de sesión",
@@ -85,7 +87,11 @@
             "campaign": "Campaña:",
             "remaining": "{time} restante",
             "drop_progress": "Progreso:",
-            "campaign_progress": "Progreso:"
+            "campaign_progress": "Progreso:",
+            "eta": "listo ≈ {time} #",
+            "transport": "Método de visualización: {transport} #",
+            "unverified": "Sin confirmar durante {minutes} min ⚠ #",
+            "verified": "Confirmado por Twitch ✔ #"
         },
         "channels": {
             "name": "Canales",
@@ -126,7 +132,8 @@
             "all_channels": "Todos",
             "and_more": "y {amount} más...",
             "percent_progress": "{percent} de {minutes} minutos",
-            "minutes_progress": "{minutes} minutos"
+            "minutes_progress": "{minutes} minutos",
+            "eta": "≈ {time} restante #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Mostrar notificaciones: ",
                 "dark_mode": "Modo oscuro: ",
                 "priority_mode": "Modo de prioridad: ",
-                "proxy": "Proxy (requiere reinicio):"
+                "proxy": "Proxy (requiere reinicio):",
+                "skip_unfinishable": "Omitir campañas que no pueden completarse a tiempo #: ",
+                "update_check": "Buscar actualizaciones al iniciar #: ",
+                "webhook_test": "Probar #",
+                "webhook_test_failed": "El envío del mensaje de prueba falló. #",
+                "webhook_test_sent": "Mensaje de prueba enviado. #",
+                "webhook_url": "URL del webhook de Discord #: "
             },
             "advanced": {
                 "name": "Avanzado",
@@ -169,7 +182,41 @@
             "invalidate": {
                 "button": "Invalidar",
                 "text": "Invalidar el token de autenticación (cerrar sesión):"
+            },
+            "verify": {
+                "button": "Verificar #",
+                "match": "El progreso del lado del servidor coincide con el estado local. #",
+                "mismatch": "¡Discrepancia! Local: {local} min, servidor: {server} min para \"{drop}\". #",
+                "no_drop": "No hay ningún drop minándose activamente para verificar. #",
+                "text": "Verificar el progreso de los drops con los servidores de Twitch #:"
             }
+        },
+        "session": {
+            "summary": "Sesión: {drops} drops reclamados, {minutes} min minados, {campaigns} campañas completadas #"
+        },
+        "update": {
+            "available": "Nueva versión disponible: {version} #",
+            "latest": "Está usando la última versión. #"
+        },
+        "weekly": {
+            "applied": "✅ {count} juego(s) aplicado(s): {games}. Recargando… #",
+            "apply": "✅ Aplicar selección ▶ comenzar a minar #",
+            "badge_active": "● {days}d restantes #",
+            "badge_upcoming": "◷ en {days}d #",
+            "channels_any": "cualquier canal #",
+            "channels_some": "{count} canal(es) #",
+            "intro": "Marque las campañas que desea minar esta semana y luego presione Aplicar. El minero dará prioridad a esos juegos y los recolectará de los canales participantes en vivo. #",
+            "link_account": "🔗 Vincular cuenta #",
+            "linked": "✔ vinculado #",
+            "meta": "{campaign}  ·  {drops} drop(s), hasta {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Ninguna campaña coincide para la próxima semana. #",
+            "no_data": "Aún no hay datos de campañas — inicie sesión y deje que el inventario termine de cargar, luego presione Actualizar. #",
+            "not_linked": "✖ sin vincular #",
+            "nothing_selected": "⚠ Nada marcado — seleccione al menos una campaña primero. #",
+            "only_earnable": "Mostrar solo las que puedo obtener (cuenta vinculada) #",
+            "refresh": "🔄 Actualizar desde Twitch #",
+            "refreshing": "⏳ Actualizando desde Twitch… (se actualiza en unos segundos) #",
+            "status_count": "{count} campaña(s) esta semana. {selected} preseleccionadas de su lista de juegos preferidos. #"
         }
     }
 }

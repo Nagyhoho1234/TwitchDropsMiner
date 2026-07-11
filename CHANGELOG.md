@@ -4,6 +4,19 @@ This fork tracks [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDro
 master, with the changes below applied on top. If upstream ships its own fix for an issue
 listed here, prefer upstream's version.
 
+## v16-fork.5 — 2026-07-11
+
+### Added
+- **All fork features localized in all 21 languages.** The ~41 new UI strings
+  (This Week tab, webhook settings, trust indicators, ETAs, session summary,
+  verify button, update notifications) are now translated into every bundled
+  language instead of falling back to English. Machine-translated strings are
+  marked with a trailing `#` to make their unreviewed status transparent —
+  English and Hungarian are fully reviewed and carry no markers. Native-speaker
+  corrections are welcome: fix the string, drop the `#`, open a PR.
+  Existing human translations were never modified; placeholders were verified
+  programmatically for every string.
+
 ## v16-fork.4 — 2026-07-11
 
 Security & stability hardening release, based on two dedicated adversarial reviews of

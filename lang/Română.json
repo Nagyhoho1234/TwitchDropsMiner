@@ -47,13 +47,15 @@
             "main": "Principal",
             "inventory": "Inventar",
             "settings": "Setări",
-            "help": "Ajutor"
+            "help": "Ajutor",
+            "this_week": "Săptămâna aceasta #"
         },
         "tray": {
             "notification_title": "Drop minat",
             "minimize": "Minimizați în bara de activități",
             "show": "Arată",
-            "quit": "Renunțare"
+            "quit": "Renunțare",
+            "new_campaign": "Campanie nouă #"
         },
         "login": {
             "name": "Formular de conectare",
@@ -85,7 +87,11 @@
             "campaign": "Campanie :",
             "remaining": "{time} rămas",
             "drop_progress": "Avansare :",
-            "campaign_progress": "Avansare :"
+            "campaign_progress": "Avansare :",
+            "eta": "gata ≈ {time} #",
+            "transport": "Metodă de vizionare : {transport} #",
+            "unverified": "Neconfirmat de {minutes} min ⚠ #",
+            "verified": "Confirmat de Twitch ✔ #"
         },
         "channels": {
             "name": "Canale",
@@ -126,7 +132,8 @@
             "all_channels": "Toate",
             "and_more": "și încă {amount}...",
             "percent_progress": "{percent} din {minutes} minute",
-            "minutes_progress": "{minutes} minute"
+            "minutes_progress": "{minutes} minute",
+            "eta": "≈ {time} rămas #"
         },
         "settings": {
             "general": {
@@ -136,7 +143,13 @@
                 "tray_notifications": "Notificări în bara de activități :",
                 "dark_mode": "Mod întunecat :",
                 "priority_only": "Doar cu prioritate :",
-                "proxy": "Proxy (necesită repornire) :"
+                "proxy": "Proxy (necesită repornire) :",
+                "skip_unfinishable": "Omite campaniile care nu pot fi terminate la timp  #: ",
+                "update_check": "Verifică actualizări la pornire  #: ",
+                "webhook_test": "Test #",
+                "webhook_test_failed": "Trimiterea mesajului de test a eșuat. #",
+                "webhook_test_sent": "Mesajul de test a fost trimis. #",
+                "webhook_url": "URL webhook Discord  #: "
             },
             "game_name": "Nume joc",
             "priority": "Prioritate",
@@ -153,7 +166,45 @@
             "how_it_works": "Cum funcționează",
             "how_it_works_text": "Aproximativ la fiecare ~60 de secunde, aplicația trimite un eveniment \"minut vizionat\" către canalul care este vizionat în prezent - ceea ce este suficient pentru a avansa drop-ul. Rețineți că acest lucru ocolește complet necesitatea de a descărca video și audio din fluxul real. Pentru a menține actualizată starea (ONLINE sau OFFLINE) a canalelor, se stabilește o conexiune websocket pentru a primi evenimente despre fluxurile care cresc sau scad sau actualizări despre numărul actual de spectatori.",
             "getting_started": "Ghid introductiv",
-            "getting_started_text": "1. Conectați-vă la aplicație.\n2. Asigurați-vă că contul dvs. Twitch este conectat la orice campanie care vă interesează.\n3. Dacă doriți doar să extrageți totul, debifați \"Doar cu prioritate\" și apăsați \"Reîncarcă\".\n4. Dacă doriți să extrageți mai întâi anumite jocuri, utilizați lista \"Prioritate\" pentru a defini o listă ordonată de jocuri la alegere. Jocurile din partea de sus a listei vor fi încercate să fie extrase mai întâi, înaintea celor de mai jos în listă.\n5. Lăsați opțiunea \"Doar cu prioritate\" bifată pentru a evita jocurile miniere care nu sunt în lista de priorități. Sau nu - depinde de tine.\n6. Utilizați lista \"Exclude\" pentru a spune aplicației ce jocuri nu ar trebui să fie extrase niciodată.\n7. Editarea conținutului oricăreia dintre liste sau modificarea stării opțiunii \"Doar cu prioritate\" necesită apăsarea \"Reîncarcă\" pentru ca modificările să intre în vigoare."
+            "getting_started_text": "1. Conectați-vă la aplicație.\n2. Asigurați-vă că contul dvs. Twitch este conectat la orice campanie care vă interesează.\n3. Dacă doriți doar să extrageți totul, debifați \"Doar cu prioritate\" și apăsați \"Reîncarcă\".\n4. Dacă doriți să extrageți mai întâi anumite jocuri, utilizați lista \"Prioritate\" pentru a defini o listă ordonată de jocuri la alegere. Jocurile din partea de sus a listei vor fi încercate să fie extrase mai întâi, înaintea celor de mai jos în listă.\n5. Lăsați opțiunea \"Doar cu prioritate\" bifată pentru a evita jocurile miniere care nu sunt în lista de priorități. Sau nu - depinde de tine.\n6. Utilizați lista \"Exclude\" pentru a spune aplicației ce jocuri nu ar trebui să fie extrase niciodată.\n7. Editarea conținutului oricăreia dintre liste sau modificarea stării opțiunii \"Doar cu prioritate\" necesită apăsarea \"Reîncarcă\" pentru ca modificările să intre în vigoare.",
+            "invalidate": {
+                "button": "Invalidează #",
+                "text": "Invalidează token-ul de autentificare (deconectare)  #:"
+            },
+            "verify": {
+                "button": "Verifică #",
+                "match": "Progresul de pe server corespunde stării locale. #",
+                "mismatch": "Nepotrivire! Local: {local} min, server: {server} min pentru \"{drop}\". #",
+                "no_drop": "Nu există niciun drop minat activ de verificat. #",
+                "text": "Verifică progresul drop-ului cu serverele Twitch  #:"
+            }
+        },
+        "session": {
+            "summary": "Sesiune : drop-uri revendicate : {drops}, minute minate : {minutes}, campanii terminate : {campaigns} #"
+        },
+        "update": {
+            "available": "Versiune nouă disponibilă : {version} #",
+            "latest": "Rulați cea mai recentă versiune. #"
+        },
+        "weekly": {
+            "applied": "✅ S-au aplicat {count} joc(uri) : {games}. Se reîncarcă… #",
+            "apply": "✅ Aplică selecția ▶ începe minarea #",
+            "badge_active": "● {days}z rămase #",
+            "badge_upcoming": "◷ în {days}z #",
+            "channels_any": "orice canal #",
+            "channels_some": "{count} canal(e) #",
+            "intro": "Bifați campaniile pe care doriți să le farmați săptămâna aceasta, apoi apăsați Aplică. Aplicația va prioritiza acele jocuri și le va colecta de pe canalele participante aflate live. #",
+            "link_account": "🔗 Asociază contul #",
+            "linked": "✔ asociat #",
+            "meta": "{campaign}  ·  {drops} drop(-uri), până la {minutes} min  ·  {where}  ·  {link} #",
+            "no_campaigns": "Nicio campanie nu corespunde pentru săptămâna următoare. #",
+            "no_data": "Nu există încă date despre campanii — conectați-vă și lăsați inventarul să se încarce complet, apoi apăsați Actualizare. #",
+            "not_linked": "✖ neasociat #",
+            "nothing_selected": "⚠ Nimic bifat — selectați mai întâi cel puțin o campanie. #",
+            "only_earnable": "Afișează doar cele pe care le pot obține (cont asociat) #",
+            "refresh": "🔄 Actualizare de la Twitch #",
+            "refreshing": "⏳ Se actualizează de la Twitch… (se actualizează în câteva secunde) #",
+            "status_count": "Campanii săptămâna aceasta : {count}. Preselectate din lista dvs. de priorități : {selected}. #"
         }
     }
 }
