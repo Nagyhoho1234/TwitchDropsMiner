@@ -1648,6 +1648,7 @@ class _SettingsVars(TypedDict):
     language: StringVar
     priority_mode: StringVar
     update_check: IntVar
+    skip_unfinishable: IntVar
     tray_notifications: IntVar
     enable_badges_emotes: IntVar
     available_drops_check: IntVar
@@ -1685,6 +1686,7 @@ class SettingsPanel:
             "dark_mode": IntVar(master, int(self._settings.dark_mode)),
             "priority_mode": StringVar(master, self.PRIORITY_MODES[priority_mode]),
             "update_check": IntVar(master, int(self._settings.update_check)),
+            "skip_unfinishable": IntVar(master, int(self._settings.skip_unfinishable)),
             "tray_notifications": IntVar(master, self._settings.tray_notifications),
             "enable_badges_emotes": IntVar(
                 master, int(self._settings.enable_badges_emotes)
@@ -1762,6 +1764,18 @@ class SettingsPanel:
                 self._settings,
                 "update_check",
                 bool(self._vars["update_check"].get()),
+            ),
+        ).grid(column=1, row=irow, sticky="w")
+        ttk.Label(
+            checkboxes_frame, text=_("gui", "settings", "general", "skip_unfinishable")
+        ).grid(column=0, row=(irow := irow + 1), sticky="e")
+        ttk.Checkbutton(
+            checkboxes_frame,
+            variable=self._vars["skip_unfinishable"],
+            command=lambda: setattr(
+                self._settings,
+                "skip_unfinishable",
+                bool(self._vars["skip_unfinishable"].get()),
             ),
         ).grid(column=1, row=irow, sticky="w")
         ttk.Label(

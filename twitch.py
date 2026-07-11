@@ -757,6 +757,7 @@ class Twitch:
                 priority = self.settings.priority
                 priority_mode = self.settings.priority_mode
                 priority_only = priority_mode is PriorityMode.PRIORITY_ONLY
+                skip_unfinishable = self.settings.skip_unfinishable
                 next_hour = datetime.now(timezone.utc) + timedelta(hours=1)
                 # sorted_campaigns: list[DropsCampaign] = list(self.inventory)
                 sorted_campaigns: list[DropsCampaign] = self.inventory
@@ -780,6 +781,20 @@ class Twitch:
                         # and can be progressed within the next hour
                         and campaign.can_earn_within(next_hour)
                     ):
+                        # skip active campaigns that can't be finished before they end
+                        # NOTE: upcoming campaigns aren't skipped, because their availability
+                        # includes the time before they start, so it can't be trusted yet
+                        if (
+                            skip_unfinishable
+                            and campaign.active
+                            and campaign.availability < 1.0
+                        ):
+                            logger.log(
+                                CALL,
+                                f"Skipping unfinishable campaign: {campaign.name} "
+                                f"({game.name}), availability: {campaign.availability:.3f}"
+                            )
+                            continue
                         # non-excluded games with no priority are placed last, below priority ones
                         self.wanted_games.append(game)
                 full_cleanup = True
