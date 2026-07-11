@@ -482,6 +482,8 @@ class Twitch:
         # mining_stalled(minutes, transport), transport_rotated(old, new),
         # mining_recovered(transport), login_required()
         self._event_listeners: dict[str, list[Callable[..., Any]]] = {}
+        # strong references to in-flight listener tasks (asyncio only weak-refs tasks)
+        self._event_tasks: set[asyncio.Task[Any]] = set()
         # Discord webhook notifications (subscribes to the event bus above)
         self.webhooks: WebhookNotifier = WebhookNotifier(self)
         # Trust indicators: mirror each watch cycle's confirmation state in the GUI
@@ -534,7 +536,9 @@ class Twitch:
             try:
                 result = callback(**data)
                 if asyncio.iscoroutine(result):
-                    asyncio.create_task(result)
+                    task = asyncio.create_task(result)
+                    self._event_tasks.add(task)
+                    task.add_done_callback(self._event_tasks.discard)
             except Exception:
                 logger.exception(f"Event listener for '{name}' failed")
 

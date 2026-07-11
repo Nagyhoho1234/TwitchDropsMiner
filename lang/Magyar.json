@@ -88,8 +88,8 @@
             "drop_progress": "Előrehaladás:",
             "campaign_progress": "Előrehaladás:",
             "verified": "A Twitch megerősítette ✔",
-            "unverified": "Nincs megerősítve {minutes} perce ⚠",
-            "transport": "Nézési mód: {transport}",
+            "unverified": "{minutes} perce nincs megerősítve ⚠",
+            "transport": "Megtekintési mód: {transport}",
             "eta": "kész ≈ {time}"
         },
         "channels": {
@@ -204,8 +204,8 @@
             "refreshing": "⏳ Frissítés a Twitchről… (néhány másodperc múlva frissül)",
             "no_data": "Még nincsenek kampányadatok – jelentkezz be, várd meg, míg a készlet betöltődik, majd nyomd meg a Frissítést.",
             "no_campaigns": "Nincs a következő hétre eső kampány.",
-            "badge_active": "● {days} nap",
-            "badge_upcoming": "◷ {days} nap",
+            "badge_active": "● még {days} nap",
+            "badge_upcoming": "◷ {days} nap múlva",
             "meta": "{campaign}  ·  {drops} drop, max. {minutes} perc  ·  {where}  ·  {link}",
             "channels_some": "{count} csatorna",
             "channels_any": "bármely csatorna",

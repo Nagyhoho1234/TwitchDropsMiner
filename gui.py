@@ -2512,7 +2512,7 @@ class WeeklyPicker:
                 days = max((c.starts_at - now).days, 0)
                 badge = _("gui", "weekly", "badge_upcoming").format(days=days)
                 style = "yellow.TLabel"
-            ttk.Label(row, text=badge, style=style, width=10).grid(
+            ttk.Label(row, text=badge, style=style, width=16).grid(
                 column=1, row=0, rowspan=2, sticky="w", padx=(0, 6)
             )
 

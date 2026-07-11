@@ -25,6 +25,31 @@ INITIAL_DELAY: float = 15
 CHECK_INTERVAL: float = 24 * 60 * 60
 
 
+def _release_number(tag: str) -> int | None:
+    """
+    Extracts N from a "v16-fork.N" tag. Returns None for any other format.
+    """
+    prefix = "v16-fork."
+    if tag.startswith(prefix) and tag[len(prefix):].isdigit():
+        return int(tag[len(prefix):])
+    return None
+
+
+def _is_newer(remote_tag: str, local_tag: str) -> bool:
+    """
+    True only when the remote release is actually newer than the local build.
+    A local build ahead of the latest release, or an equal tag, is not "newer".
+    Unparseable (format-drifted) remote tags count as newer, so users get notified.
+    """
+    if remote_tag == local_tag:
+        return False
+    remote = _release_number(remote_tag)
+    local = _release_number(local_tag)
+    if remote is None or local is None:
+        return True
+    return remote > local
+
+
 async def check_for_update(twitch: Twitch) -> None:
     """
     Performs a single update check against the fork's GitHub releases.
@@ -51,7 +76,7 @@ async def check_for_update(twitch: Twitch) -> None:
     if not isinstance(tag_name, str) or not tag_name:
         logger.warning(f"Update check failed: no 'tag_name' in GitHub response: {data!r}")
         return
-    if tag_name == FORK_VERSION:
+    if not _is_newer(tag_name, FORK_VERSION):
         logger.info(f"Update check: {FORK_VERSION} is the latest version")
         return
     html_url = data.get("html_url") or ""

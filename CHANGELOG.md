@@ -4,7 +4,31 @@ This fork tracks [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDro
 master, with the changes below applied on top. If upstream ships its own fix for an issue
 listed here, prefer upstream's version.
 
-## 2026-07-11
+## v16-fork.2 — 2026-07-11
+
+### Added
+- **Discord webhook notifications** (Settings → General → webhook URL + Test button):
+  drop claimed, campaign finished, and — most importantly — an alert when the miner
+  is NOT actually mining: watch time not being counted by Twitch (stall + recovery),
+  watch method switched, and login required. No more waiting for days on a silently
+  broken miner.
+- **Trust indicators**: the Main tab now shows whether drop progress is
+  server-confirmed by Twitch ("Confirmed by Twitch ✔" / "Not confirmed for X min ⚠")
+  and which watch method is in use, plus a "Verify" button in the Help tab that
+  checks the current drop's progress directly against the Twitch servers.
+- **Update check**: on startup (and daily), the miner checks this fork's GitHub
+  releases and notifies when a newer build is available (can be disabled in Settings).
+- **ETAs**: the current drop shows its wall-clock finish estimate; inventory
+  campaigns show "≈ Xh Ym left".
+- **Session summary**: drops claimed / minutes mined (server-confirmed only) /
+  campaigns finished this session, on the Main tab.
+- **"This Week" tab** (adopted from upstream PR #1100, fully localized): weekly
+  campaign picker with one-click account linking and priority-list apply.
+- **Internal event bus** on the Twitch class — all features above are decoupled
+  subscribers, making them easy to upstream or remove independently.
+- All new UI strings localized (English + Hungarian, linguistically reviewed).
+
+## v16-fork.1 — 2026-07-11
 
 ### Fixed
 - **Drop progress frozen since 2026-07-10** (upstream issue
