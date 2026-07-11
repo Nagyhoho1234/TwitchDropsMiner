@@ -699,10 +699,47 @@ class CampaignProgress:
             maximum=1,
             variable=self._vars["drop"]["progress"],
         ).grid(column=0, row=10, columnspan=2)
+        # trust indicators: watch-minute verification state and the watch transport in use
+        self._verification_var = StringVar(master)
+        self._transport_var = StringVar(master)
+        self._verification_label = ttk.Label(frame, textvariable=self._verification_var)
+        self._verification_label.grid(column=0, row=11, columnspan=2)
+        ttk.Label(
+            frame, textvariable=self._transport_var
+        ).grid(column=0, row=12, columnspan=2)
         self._drop: TimedDrop | None = None
         self._seconds: int = 0
         self._timer_task: asyncio.Task[None] | None = None
         self.display(None)
+
+    @property
+    def current_drop(self) -> TimedDrop | None:
+        # the currently displayed (mined) drop, if any
+        return self._drop
+
+    def update_verification(self, confirmed: bool, transport: str, unconfirmed_minutes: int):
+        """
+        Updates the trust indicator labels below the drop progress bar.
+        Called once per watch cycle via the 'watch_minute' internal event.
+        """
+        if confirmed:
+            self._verification_label.config(style="green.TLabel")
+            self._verification_var.set(_("gui", "progress", "verified"))
+        elif unconfirmed_minutes > 0:
+            self._verification_label.config(style="yellow.TLabel")
+            self._verification_var.set(
+                _("gui", "progress", "unverified").format(minutes=unconfirmed_minutes)
+            )
+        else:
+            # not confirmed this cycle, but no dead minutes accumulated yet either
+            self._verification_label.config(style="TLabel")
+            self._verification_var.set("")
+        self._transport_var.set(_("gui", "progress", "transport").format(transport=transport))
+
+    def clear_verification(self):
+        self._verification_label.config(style="TLabel")
+        self._verification_var.set("")
+        self._transport_var.set("")
 
     def _divmod(self, minutes: int) -> tuple[int, int]:
         if self._seconds < 60 and minutes > 0:
@@ -773,6 +810,7 @@ class CampaignProgress:
             vars_campaign["game"].set("...")
             vars_campaign["progress"].set(0.0)
             vars_campaign["percentage"].set("-%")
+            self.clear_verification()
             self._update_time(0)
             return
         vars_drop["rewards"].set(drop.rewards_text())
@@ -2238,6 +2276,21 @@ class HelpTab:
             state="disabled",
         )
         self._invalidate_button.grid(column=1, row=0)
+        # Verify drop progress button
+        verify_frame = ttk.Frame(bottom_frame)
+        verify_frame.grid(column=0, row=1, sticky="nse")
+        ttk.Label(
+            verify_frame, text=_("gui", "help", "verify", "text")
+        ).grid(column=0, row=0)
+        ttk.Button(
+            verify_frame,
+            text=_("gui", "help", "verify", "button"),
+            command=self.verify_progress,
+        ).grid(column=1, row=0)
+
+    def verify_progress(self) -> None:
+        # sync to async bridge
+        asyncio.create_task(task_wrapper(self._twitch.verify_drop_progress)())
 
     def invalidate_token(self) -> None:
         # sync to async bridge

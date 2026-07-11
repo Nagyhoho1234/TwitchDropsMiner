@@ -473,6 +473,8 @@ class Twitch:
         self._event_listeners: dict[str, list[Callable[..., Any]]] = {}
         # Discord webhook notifications (subscribes to the event bus above)
         self.webhooks: WebhookNotifier = WebhookNotifier(self)
+        # Trust indicators: mirror each watch cycle's confirmation state in the GUI
+        self.on_event("watch_minute", self.gui.progress.update_verification)
         # Websocket
         self.websocket = WebsocketPool(self)
         # Maintenance task
@@ -1657,6 +1659,48 @@ class Twitch:
         if self._mnt_task is not None and not self._mnt_task.done():
             self._mnt_task.cancel()
         self._mnt_task = asyncio.create_task(self._maintenance_task())
+
+    async def verify_drop_progress(self) -> None:
+        """
+        Verifies the currently mined drop's local watch progress against the Twitch servers,
+        by re-querying the inventory and comparing the reported minutes watched.
+        Triggered via the "Verify" button on the Help tab. Prints the result to the output.
+        """
+        drop: TimedDrop | None = self.gui.progress.current_drop
+        if drop is None:
+            self.print(_("gui", "help", "verify", "no_drop"))
+            return
+        try:
+            response = await self.gql_request(GQL_QUERIES["Inventory"])
+            inventory: JsonType = response["data"]["currentUser"]["inventory"]
+            ongoing_campaigns: list[JsonType] = inventory["dropCampaignsInProgress"] or []
+            server_minutes: int = 0
+            for campaign_data in ongoing_campaigns:
+                for drop_data in campaign_data["timeBasedDrops"]:
+                    if drop_data["id"] == drop.id:
+                        server_minutes = (
+                            (drop_data.get("self") or {}).get("currentMinutesWatched") or 0
+                        )
+                        break
+                else:
+                    continue
+                break
+            # equal minutes, or the server being ahead of us, both count as a match
+            if server_minutes >= drop.real_current_minutes:
+                self.print(_("gui", "help", "verify", "match"))
+            else:
+                self.print(
+                    _("gui", "help", "verify", "mismatch").format(
+                        local=drop.real_current_minutes,
+                        server=server_minutes,
+                        drop=drop.name,
+                    )
+                )
+        except ExitRequest:
+            raise
+        except Exception as exc:
+            # never crash on network/GQL errors - report them to the user instead
+            self.print(f"{_('gui', 'help', 'verify', 'button')}: {exc}")
 
     def get_active_campaign(self, channel: Channel | None = None) -> DropsCampaign | None:
         if not self.wanted_games:
