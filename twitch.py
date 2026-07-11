@@ -1448,7 +1448,15 @@ class Twitch:
         method = method.upper()
         if self.settings.proxy and "proxy" not in kwargs:
             kwargs["proxy"] = self.settings.proxy
-        logger.debug(f"Request: ({method=}, {url=}, {kwargs=})")
+        if logger.isEnabledFor(logging.DEBUG):
+            # never write the OAuth token into the log file
+            debug_kwargs = dict(kwargs)
+            if "headers" in debug_kwargs:
+                debug_kwargs["headers"] = {
+                    k: ("<redacted>" if k.lower() == "authorization" else v)
+                    for k, v in debug_kwargs["headers"].items()
+                }
+            logger.debug(f"Request: ({method=}, {url=}, kwargs={debug_kwargs!r})")
         session_timeout = timedelta(seconds=session.timeout.total or 0)
         backoff = ExponentialBackoff(maximum=3*60)
         for delay in backoff:

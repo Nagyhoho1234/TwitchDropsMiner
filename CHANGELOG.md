@@ -4,6 +4,39 @@ This fork tracks [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDro
 master, with the changes below applied on top. If upstream ships its own fix for an issue
 listed here, prefer upstream's version.
 
+## v16-fork.4 — 2026-07-11
+
+Security & stability hardening release, based on two dedicated adversarial reviews of
+the entire fork delta. Neither review found any critical or high-severity issue; the
+key property — the Twitch auth token/cookies can never reach the Discord webhook or
+GitHub hosts — was formally verified. Everything below is defense-in-depth:
+
+### Security
+- Headless console output strips control characters, so remote-sourced names
+  (campaigns, games, drops) can't inject ANSI/OSC escape sequences into the
+  operator's terminal.
+- Webhook delivery failures no longer log full exception details, which could
+  embed the webhook URL (it contains the webhook's secret token).
+- The update notification only displays release URLs pointing at this fork's
+  repository (a spoofed API response can't surface an arbitrary link).
+- The playlist watch transport refuses non-HTTPS chunk URLs from playlist data.
+- Debug-level request logging redacts the Authorization header, so `--log -vvvv`
+  can no longer write the OAuth token into the log file (pre-existing upstream
+  behavior, fixed here).
+
+### Stability
+- Watch-method-switch webhook alerts are debounced to once per hour — during a
+  total Twitch outage the rotation fires every 15 minutes, and your alert channel
+  should tell you something is wrong, not bury you in noise (the single
+  stalled/recovered alert pair is unaffected).
+- Headless console writes go through a dedicated thread: on Windows, selecting
+  text in a console (QuickEdit mode) blocks writes, and this previously could
+  freeze mining itself until the selection was cleared.
+- Duration/debounce timers use the monotonic clock, immune to system clock jumps
+  (e.g. NTP sync on a Raspberry Pi without an RTC).
+- The GUI output pane is capped at 5000 lines, bounding memory growth over
+  multi-week runs (pre-existing upstream behavior, fixed here).
+
 ## v16-fork.3 — 2026-07-11
 
 Implements the most-requested items from the upstream issue tracker.

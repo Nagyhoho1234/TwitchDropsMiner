@@ -80,6 +80,10 @@ async def check_for_update(twitch: Twitch) -> None:
         logger.info(f"Update check: {FORK_VERSION} is the latest version")
         return
     html_url = data.get("html_url") or ""
+    # defense in depth: only surface the release URL when it points at this fork's
+    # releases - a spoofed API response must not be able to display an arbitrary link
+    if not html_url.startswith("https://github.com/Nagyhoho1234/TwitchDropsMiner/"):
+        html_url = ""
     message = _("gui", "update", "available").format(version=tag_name)
     twitch.print(message)
     if html_url:

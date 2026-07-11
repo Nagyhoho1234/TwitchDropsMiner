@@ -481,6 +481,9 @@ class Channel:
             selected_chunk = chunks_list[-2]
         if not selected_chunk:
             return False
+        # the chunk URL comes from remote playlist data - never follow non-HTTPS targets
+        if not selected_chunk.startswith("https://"):
+            return False
         stream_chunk_url: URLType = URLType(selected_chunk)
         # sending a HEAD request is enough to advance the drops,
         # without downloading the actual stream data

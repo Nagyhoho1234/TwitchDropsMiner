@@ -3,10 +3,12 @@ from __future__ import annotations
 import re
 import asyncio
 import logging
-from time import time
+# NOTE: monotonic for durations - immune to system clock jumps (NTP sync on RTC-less Pis)
+from time import monotonic
 from getpass import getpass
 from collections import abc
 from datetime import datetime
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Any, TYPE_CHECKING
 
@@ -176,7 +178,7 @@ class HeadlessCampaignProgress:
     def __init__(self, manager: HeadlessGUIManager):
         self._manager = manager
         self._drop: TimedDrop | None = None
-        # time() of when the current 60s minute countdown was started, None when not running
+        # monotonic() of when the current 60s minute countdown was started, None when not running
         self._timer_start: float | None = None
         # (drop id, current minutes) of the last progress line printed
         self._printed: tuple[str, int] | None = None
@@ -191,7 +193,7 @@ class HeadlessCampaignProgress:
     def start_timer(self) -> None:
         if self._timer_start is None:
             if self._drop is not None and self._drop.remaining_minutes > 0:
-                self._timer_start = time()
+                self._timer_start = monotonic()
             # NOTE: the GUI displays a single time update otherwise - nothing to do here
 
     def stop_timer(self) -> None:
@@ -201,7 +203,7 @@ class HeadlessCampaignProgress:
         # already or almost done
         if self._timer_start is None:
             return True
-        elapsed: float = time() - self._timer_start
+        elapsed: float = monotonic() - self._timer_start
         if elapsed >= self.TIMER_SECONDS:
             # the GUI timer task ends itself once the full minute elapses
             self._timer_start = None
@@ -405,6 +407,11 @@ class HeadlessGUIManager:
         self._twitch: Twitch = twitch
         self._running: bool = False
         self._close_requested = asyncio.Event()
+        # single-worker executor for console writes: on Windows, a console with QuickEdit
+        # enabled blocks all writes while the user has text selected - printing directly
+        # from the event loop would freeze mining itself, so writes are handed off here
+        # (one worker keeps the output ordered)
+        self._print_executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="console")
         # GUI component counterparts
         self.tray = HeadlessTrayIcon(self)
         self.status = HeadlessStatusBar(self)
@@ -473,9 +480,12 @@ class HeadlessGUIManager:
 
     def close_window(self):
         """
-        No window to close in headless mode - only invalidates the logging handler.
+        No window to close in headless mode - only invalidates the logging handler
+        and stops the console-write worker.
         """
         logging.getLogger("TwitchDrops").removeHandler(self._handler)
+        # don't wait: a stalled console (QuickEdit selection) must not block process exit
+        self._print_executor.shutdown(wait=False)
 
     # these are here to interface with underlaying GUI components
     def save(self, *, force: bool = False) -> None:
@@ -497,19 +507,28 @@ class HeadlessGUIManager:
     def clear_drop(self):
         self.progress.display(None)
 
+    # C0/C1 control characters except tab and newline - remote-sourced names (campaigns,
+    # games, drops) must not be able to inject ANSI/OSC escapes into the operator's terminal
+    _CONTROL_CHARS = re.compile(r"[\x00-\x08\x0b-\x1f\x7f-\x9f]")
+
     def print(self, message: str):
         # print to the console, mirroring the GUI output format
+        message = self._CONTROL_CHARS.sub('', message)
         stamp = datetime.now().strftime("%X")
         if '\n' in message:
             message = message.replace('\n', f"\n{stamp}: ")
-        print(f"{stamp}: {message}", flush=True)
+        try:
+            self._print_executor.submit(print, f"{stamp}: {message}", flush=True)
+        except RuntimeError:
+            # executor already shut down - late prints during teardown go out directly
+            print(f"{stamp}: {message}", flush=True)
 
     def update_session_stats(self, *, drops: int, minutes: int, campaigns: int) -> None:
         # store the session stats, print the summary at most once per hour
         stats: tuple[int, int, int] = (drops, minutes, campaigns)
         changed: bool = stats != self._session_stats
         self._session_stats = stats
-        now: float = time()
+        now: float = monotonic()
         if changed and now - self._session_printed >= self.SESSION_STATS_INTERVAL:
             self._session_printed = now
             self.print(

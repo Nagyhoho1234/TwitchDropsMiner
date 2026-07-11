@@ -2,6 +2,10 @@
 Read-only verification helper: queries Twitch's Inventory GQL endpoint directly
 (using the same login token as the miner) and prints server-side drop progress.
 Not part of the application - used to independently confirm mining works.
+
+SECURITY NOTE: this script reads the auth token from dist/cookies.jar. Only run it
+against your own cookie file, and never share its input file - the token grants
+full access to the Twitch account. The token itself is never printed.
 """
 import asyncio
 import sys

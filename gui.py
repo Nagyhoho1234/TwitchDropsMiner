@@ -876,12 +876,16 @@ class ConsoleOutput:
         xscroll.grid(column=0, row=1, sticky="ew")
         yscroll.grid(column=1, row=0, sticky="ns")
 
+    # cap the output pane to bound memory usage over multi-week runs
+    MAX_LINES = 5000
+
     def print(self, message: str):
         stamp = datetime.now().strftime("%X")
         if '\n' in message:
             message = message.replace('\n', f"\n{stamp}: ")
         self._text.config(state="normal")
         self._text.insert("end", f"{stamp}: {message}\n")
+        self._text.delete("1.0", f"end-{self.MAX_LINES}l")
         self._text.see("end")  # scroll to the newly added line
         self._text.config(state="disabled")
 
