@@ -1557,9 +1557,17 @@ def proxy_validate(entry: PlaceholderEntry, settings: Settings) -> bool:
     return valid
 
 
+def webhook_validate(entry: PlaceholderEntry, settings: Settings) -> bool:
+    raw_url = entry.get().strip()
+    entry.replace(raw_url)
+    settings.webhook_url = raw_url
+    return True
+
+
 class _SettingsVars(TypedDict):
     tray: IntVar
     proxy: StringVar
+    webhook_url: StringVar
     autostart: IntVar
     dark_mode: IntVar
     language: StringVar
@@ -1597,6 +1605,7 @@ class SettingsPanel:
             "autostart": IntVar(master, 0),
             "language": StringVar(master, _.current),
             "proxy": StringVar(master, str(self._settings.proxy)),
+            "webhook_url": StringVar(master, self._settings.webhook_url),
             "tray": IntVar(master, self._settings.autostart_tray),
             "dark_mode": IntVar(master, int(self._settings.dark_mode)),
             "priority_mode": StringVar(master, self.PRIORITY_MODES[priority_mode]),
@@ -1712,6 +1721,30 @@ class SettingsPanel:
         )
         self._proxy.config(validatecommand=partial(proxy_validate, self._proxy, self._settings))
         self._proxy.grid(column=0, row=1)
+
+        # webhook frame
+        webhook_frame = ttk.Frame(general_center)
+        webhook_frame.grid(column=0, row=3)
+        ttk.Label(
+            webhook_frame, text=_("gui", "settings", "general", "webhook_url")
+        ).grid(column=0, row=0, columnspan=2, sticky="w")
+        self._webhook = PlaceholderEntry(
+            webhook_frame,
+            width=30,
+            validate="focusout",
+            textvariable=self._vars["webhook_url"],
+            placeholder="https://discord.com/api/webhooks/...",
+        )
+        self._webhook.config(
+            validatecommand=partial(webhook_validate, self._webhook, self._settings)
+        )
+        self._webhook.grid(column=0, row=1)
+        ttk.Button(
+            webhook_frame,
+            width=6,
+            command=self.webhook_test,
+            text=_("gui", "settings", "general", "webhook_test"),
+        ).grid(column=1, row=1)
 
         # Advanced section
         advanced_frame = ttk.LabelFrame(
@@ -1862,6 +1895,19 @@ class SettingsPanel:
     def clear_selection(self) -> None:
         self._priority_list.selection_clear(0, "end")
         self._exclude_list.selection_clear(0, "end")
+
+    def webhook_test(self) -> None:
+        # sync to async bridge
+        asyncio.create_task(task_wrapper(self._webhook_test)())
+
+    async def _webhook_test(self) -> None:
+        twitch = self._manager._twitch
+        # commit the current entry contents, in case the entry hasn't lost focus yet
+        self._settings.webhook_url = self._webhook.get().strip()
+        if await twitch.webhooks.send("🔔 Test message from TwitchDropsMiner"):
+            twitch.print(_("gui", "settings", "general", "webhook_test_sent"))
+        else:
+            twitch.print(_("gui", "settings", "general", "webhook_test_failed"))
 
     def update_dark_mode(self) -> None:
         self._settings.dark_mode = bool(self._vars["dark_mode"].get())

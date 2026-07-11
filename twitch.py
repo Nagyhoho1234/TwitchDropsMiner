@@ -19,6 +19,7 @@ from translate import _
 from gui import GUIManager
 from channel import Channel
 from websocket import WebsocketPool
+from webhooks import WebhookNotifier
 from inventory import DropsCampaign
 from update_check import update_check_loop
 from exceptions import (
@@ -470,6 +471,8 @@ class Twitch:
         # mining_stalled(minutes, transport), transport_rotated(old, new),
         # mining_recovered(transport), login_required()
         self._event_listeners: dict[str, list[Callable[..., Any]]] = {}
+        # Discord webhook notifications (subscribes to the event bus above)
+        self.webhooks: WebhookNotifier = WebhookNotifier(self)
         # Websocket
         self.websocket = WebsocketPool(self)
         # Maintenance task
