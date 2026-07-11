@@ -14,9 +14,15 @@ if __name__ == "__main__":
     import argparse
     import warnings
     import traceback
-    import tkinter as tk
-    from tkinter import messagebox
     from typing import NoReturn, TYPE_CHECKING
+
+    # NOTE: tkinter must not be imported in headless mode - servers usually don't have it
+    # available at all. The flag has to be peeked at before the parser is even constructed,
+    # because the GUI parser requires tkinter for its message boxes.
+    HEADLESS: bool = "--headless" in sys.argv[1:]
+    if not HEADLESS:
+        import tkinter as tk
+        from tkinter import messagebox
 
     import truststore
     truststore.inject_into_ssl()
@@ -40,6 +46,7 @@ if __name__ == "__main__":
     if sys.version_info < (3, 10):
         raise RuntimeError("Python 3.10 or higher is required")
 
+    # NOTE: only used in GUI mode - headless mode uses a plain console parser instead
     class Parser(argparse.ArgumentParser):
         def __init__(self, *args, **kwargs) -> None:
             super().__init__(*args, **kwargs)
@@ -62,6 +69,7 @@ if __name__ == "__main__":
         log: bool
         tray: bool
         dump: bool
+        headless: bool
 
         # TODO: replace int with union of literal values once typeshed updates
         @property
@@ -90,22 +98,33 @@ if __name__ == "__main__":
             return logging.NOTSET
 
     # handle input parameters
-    # NOTE: parser output is shown via message box
-    # we also need a dummy invisible window for the parser
-    root = tk.Tk()
-    root.overrideredirect(True)
-    root.withdraw()
-    set_root_icon(root, resource_path("icons/pickaxe.ico"))
-    root.update()
-    parser = Parser(
-        SELF_PATH.name,
-        description="A program that allows you to mine timed drops on Twitch.",
-    )
+    parser: argparse.ArgumentParser
+    if HEADLESS:
+        # console mode: the default parser output (stdout/stderr) works just fine
+        parser = argparse.ArgumentParser(
+            SELF_PATH.name,
+            description="A program that allows you to mine timed drops on Twitch.",
+        )
+    else:
+        # NOTE: parser output is shown via message box
+        # we also need a dummy invisible window for the parser
+        root = tk.Tk()
+        root.overrideredirect(True)
+        root.withdraw()
+        set_root_icon(root, resource_path("icons/pickaxe.ico"))
+        root.update()
+        parser = Parser(
+            SELF_PATH.name,
+            description="A program that allows you to mine timed drops on Twitch.",
+        )
     parser.add_argument("--version", action="version", version=f"v{__version__}")
     parser.add_argument("-v", dest="_verbose", action="count", default=0)
     parser.add_argument("--tray", action="store_true")
     parser.add_argument("--log", action="store_true")
     parser.add_argument("--dump", action="store_true")
+    parser.add_argument(
+        "--headless", action="store_true", help="run without any GUI (console output only)"
+    )
     # undocumented debug args
     parser.add_argument(
         "--debug-ws", dest="_debug_ws", action="store_true", help=argparse.SUPPRESS
@@ -118,15 +137,20 @@ if __name__ == "__main__":
     try:
         settings = Settings(args)
     except Exception:
-        messagebox.showerror(
-            "Settings error",
+        settings_error = (
             f"There was an error while loading the settings file:\n\n{traceback.format_exc()}"
         )
+        if HEADLESS:
+            print(settings_error, file=sys.stderr)
+        else:
+            messagebox.showerror("Settings error", settings_error)
         sys.exit(4)
-    # dummy window isn't needed anymore
-    root.destroy()
+    if not HEADLESS:
+        # dummy window isn't needed anymore
+        root.destroy()
+        del root
     # get rid of unneeded objects
-    del root, parser
+    del parser
 
     # client run
     async def main():
@@ -157,6 +181,13 @@ if __name__ == "__main__":
         if sys.platform == "linux":
             loop.add_signal_handler(signal.SIGINT, lambda *_: client.gui.close())
             loop.add_signal_handler(signal.SIGTERM, lambda *_: client.gui.close())
+        elif settings.headless:
+            # NOTE: loop.add_signal_handler isn't supported outside of unix platforms,
+            # so handle Ctrl+C (and console termination) via the signal module instead
+            def _signal_close(*_args) -> None:
+                loop.call_soon_threadsafe(client.gui.close)
+            signal.signal(signal.SIGINT, _signal_close)
+            signal.signal(signal.SIGTERM, _signal_close)
         try:
             await client.run()
         except CaptchaRequired:
@@ -172,6 +203,9 @@ if __name__ == "__main__":
             if sys.platform == "linux":
                 loop.remove_signal_handler(signal.SIGINT)
                 loop.remove_signal_handler(signal.SIGTERM)
+            elif settings.headless:
+                signal.signal(signal.SIGINT, signal.SIG_DFL)
+                signal.signal(signal.SIGTERM, signal.SIG_DFL)
             client.print(_("gui", "status", "exiting"))
             await client.shutdown()
         if not client.gui.close_requested:
@@ -181,6 +215,10 @@ if __name__ == "__main__":
             client.gui.status.update(_("gui", "status", "terminated"))
             # notify the user about the closure
             client.gui.grab_attention(sound=True)
+            if settings.headless:
+                # there's no window to keep open for the user to read the error from -
+                # the console output persists on its own, so just request the closure
+                client.gui.close()
         await client.gui.wait_until_closed()
         # save the application state
         # NOTE: we have to do it after wait_until_closed,

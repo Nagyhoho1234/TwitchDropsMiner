@@ -53,6 +53,7 @@ class Settings:
     log: bool
     tray: bool
     dump: bool
+    headless: bool
     # args properties
     debug_ws: int
     debug_gql: int
