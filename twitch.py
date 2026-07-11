@@ -478,7 +478,7 @@ class Twitch:
         self._ws_progress_received: bool = False
         self._mining_stalled: bool = False
         # Internal event bus: features subscribe via on_event, producers call emit_event.
-        # Events: drop_claimed(drop), campaign_finished(campaign),
+        # Events: drop_claimed(drop), campaign_discovered(campaign), campaign_finished(campaign),
         # mining_stalled(minutes, transport), transport_rotated(old, new),
         # mining_recovered(transport), login_required()
         self._event_listeners: dict[str, list[Callable[..., Any]]] = {}
@@ -518,6 +518,15 @@ class Twitch:
         self.on_event("drop_claimed", _session_drop_claimed)
         self.on_event("campaign_finished", _session_campaign_finished)
         self.on_event("watch_minute", _session_watch_minute)
+
+        # New campaign announcements (issue #767): print + tray notification
+        # (the webhook message is handled by WebhookNotifier above)
+        def _campaign_discovered(campaign: DropsCampaign) -> None:
+            message = f"New campaign: {campaign.name} ({campaign.game})"
+            self.print(message)
+            self.gui.tray.notify(message, _("gui", "tray", "new_campaign"))
+
+        self.on_event("campaign_discovered", _campaign_discovered)
         # Websocket
         self.websocket = WebsocketPool(self)
         # Maintenance task

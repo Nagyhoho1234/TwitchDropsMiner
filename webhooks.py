@@ -32,6 +32,7 @@ class WebhookNotifier:
         self._twitch: Twitch = twitch
         self._last_login_alert: float = 0.0
         twitch.on_event("drop_claimed", self._on_drop_claimed)
+        twitch.on_event("campaign_discovered", self._on_campaign_discovered)
         twitch.on_event("campaign_finished", self._on_campaign_finished)
         twitch.on_event("mining_stalled", self._on_mining_stalled)
         twitch.on_event("transport_rotated", self._on_transport_rotated)
@@ -71,6 +72,9 @@ class WebhookNotifier:
 
     async def _on_drop_claimed(self, drop: TimedDrop) -> None:
         await self.send(f"🎁 Drop claimed: {drop.name} ({drop.campaign.game})")
+
+    async def _on_campaign_discovered(self, campaign: DropsCampaign) -> None:
+        await self.send(f"🆕 New campaign: {campaign.name} ({campaign.game})")
 
     async def _on_campaign_finished(self, campaign: DropsCampaign) -> None:
         await self.send(f"🏁 Campaign finished: {campaign.name} ({campaign.game})")
