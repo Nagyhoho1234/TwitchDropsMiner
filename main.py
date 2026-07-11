@@ -145,7 +145,7 @@ if __name__ == "__main__":
         logger = logging.getLogger("TwitchDrops")
         logger.setLevel(settings.logging_level)
         if settings.log:
-            handler = logging.FileHandler(LOG_PATH)
+            handler = logging.FileHandler(LOG_PATH, encoding="utf8")
             handler.setFormatter(FILE_FORMATTER)
             logger.addHandler(handler)
         logging.getLogger("TwitchDrops.gql").setLevel(settings.debug_gql)

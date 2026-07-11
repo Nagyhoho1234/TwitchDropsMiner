@@ -17,6 +17,12 @@ listed here, prefer upstream's version.
   concurrent campaigns, including automatic drop claiming.
 
 ### Added
+- **Hungarian localization** (`lang/Magyar.json`): full translation of the UI.
+  AI-translated, then reviewed in a separate linguistic pass for natural,
+  idiomatic Hungarian (grammar, register, terminology consistency, no calques).
+  Verified that all accented characters (including ő/ű) load and render
+  correctly in every GUI font; the log file is now written as UTF-8 so accented
+  characters (in any language, or in channel names) can't corrupt logging.
 - **Watch transport watchdog**: Twitch has flip-flopped twice in 2026 between counting
   Spade POST and GQL watch events (upstream issues
   [#1038](https://github.com/DevilXD/TwitchDropsMiner/issues/1038), #1099), each time
