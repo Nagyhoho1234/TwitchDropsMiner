@@ -484,6 +484,8 @@ class Twitch:
         self._event_listeners: dict[str, list[Callable[..., Any]]] = {}
         # strong references to in-flight listener tasks (asyncio only weak-refs tasks)
         self._event_tasks: set[asyncio.Task[Any]] = set()
+        # campaign IDs seen on the previous inventory fetch (campaign_discovered event)
+        self._known_campaigns: set[str] = set()
         # Discord webhook notifications (subscribes to the event bus above)
         self.webhooks: WebhookNotifier = WebhookNotifier(self)
         # Trust indicators: mirror each watch cycle's confirmation state in the GUI
@@ -1670,6 +1672,14 @@ class Twitch:
                 switch_triggers.update(campaign.time_triggers)
             self.inventory.append(campaign)
             self._campaigns[campaign.id] = campaign
+        # announce campaigns that weren't there on the previous fetch (issue #767);
+        # the first fetch after startup only records them, to avoid an alert flood
+        current_ids: set[str] = {campaign.id for campaign in campaigns}
+        if self._known_campaigns:
+            for campaign in campaigns:
+                if campaign.id not in self._known_campaigns:
+                    self.emit_event("campaign_discovered", campaign=campaign)
+        self._known_campaigns = current_ids
         # re-render the "This Week" tab now that inventory (incl. account-link
         # status) is fresh; it doesn't need the CDN images loaded below
         self.gui.weekly.refresh()

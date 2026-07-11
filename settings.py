@@ -20,6 +20,8 @@ class SettingsFile(TypedDict):
     webhook_url: str
     update_check: bool
     autostart_tray: bool
+    window_geometry: str
+    skip_unfinishable: bool
     connection_quality: int
     tray_notifications: bool
     enable_badges_emotes: bool
@@ -34,6 +36,8 @@ default_settings: SettingsFile = {
     "dark_mode": False,
     "webhook_url": "",
     "update_check": True,
+    "window_geometry": "",
+    "skip_unfinishable": False,
     "autostart_tray": False,
     "connection_quality": 1,
     "language": DEFAULT_LANG,
@@ -62,6 +66,8 @@ class Settings:
     webhook_url: str
     update_check: bool
     autostart_tray: bool
+    window_geometry: str
+    skip_unfinishable: bool
     connection_quality: int
     tray_notifications: bool
     enable_badges_emotes: bool

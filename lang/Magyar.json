@@ -54,7 +54,8 @@
             "notification_title": "Kibányászott drop",
             "minimize": "Kicsinyítés a tálcára",
             "show": "Megjelenítés",
-            "quit": "Kilépés"
+            "quit": "Kilépés",
+            "new_campaign": "Új kampány"
         },
         "login": {
             "name": "Bejelentkezés",
@@ -147,7 +148,8 @@
                 "webhook_test": "Teszt",
                 "webhook_test_sent": "Tesztüzenet elküldve.",
                 "webhook_test_failed": "A tesztüzenet küldése nem sikerült.",
-                "update_check": "Frissítések keresése induláskor: "
+                "update_check": "Frissítések keresése induláskor: ",
+                "skip_unfinishable": "A határidőre nem teljesíthető kampányok kihagyása: "
             },
             "advanced": {
                 "name": "Haladó",

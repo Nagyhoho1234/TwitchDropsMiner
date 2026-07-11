@@ -89,6 +89,7 @@ class GUIWeekly(TypedDict):
 
 class GUITray(TypedDict):
     notification_title: str
+    new_campaign: str
     minimize: str
     show: str
     quit: str
@@ -196,6 +197,7 @@ class GUISettingsGeneral(TypedDict):
     webhook_test_sent: str
     webhook_test_failed: str
     update_check: str
+    skip_unfinishable: str
 
 
 class GUISettingsAdvanced(TypedDict):
@@ -348,6 +350,7 @@ default_translation: Translation = {
         },
         "tray": {
             "notification_title": "Mined Drop",
+            "new_campaign": "New Campaign",
             "minimize": "Minimize to Tray",
             "show": "Show",
             "quit": "Quit",
@@ -444,6 +447,7 @@ default_translation: Translation = {
                 "webhook_test_sent": "Test message sent.",
                 "webhook_test_failed": "Sending the test message failed.",
                 "update_check": "Check for updates on startup: ",
+                "skip_unfinishable": "Skip campaigns that can't be finished in time: ",
             },
             "advanced": {
                 "name": "Advanced",
