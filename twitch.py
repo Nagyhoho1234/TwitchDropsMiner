@@ -17,7 +17,6 @@ import aiohttp
 from yarl import URL
 
 from translate import _
-from gui import GUIManager
 from channel import Channel
 from websocket import WebsocketPool
 from webhooks import WebhookNotifier
@@ -61,8 +60,9 @@ from constants import (
 
 if TYPE_CHECKING:
     from utils import Game
-    from gui import LoginForm
+    from gui import GUIManager, LoginForm
     from channel import Stream
+    from headless import HeadlessGUIManager
     from settings import Settings
     from inventory import TimedDrop
     from constants import ClientInfo, JsonType, GQLOperation
@@ -466,7 +466,14 @@ class Twitch:
         self._session: aiohttp.ClientSession | None = None
         self._auth_state: _AuthState = _AuthState(self)
         # GUI
-        self.gui = GUIManager(self)
+        # NOTE: The gui module is imported lazily, so that headless mode (--headless)
+        # never imports tkinter - servers usually don't have it available at all.
+        self.gui: GUIManager | HeadlessGUIManager
+        if settings.headless:
+            from headless import HeadlessGUIManager as manager_class
+        else:
+            from gui import GUIManager as manager_class  # type: ignore[assignment]
+        self.gui = manager_class(self)
         # Storing and watching channels
         self.channels: OrderedDict[int, Channel] = OrderedDict()
         self.watching_channel: AwaitableValue[Channel] = AwaitableValue()
