@@ -1,9 +1,10 @@
 # Disclaimer & scope of this fork
 
-This is a personal, good-faith fork of the open-source
-[DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDropsMiner) (MIT licensed).
-It exists to keep the tool working during upstream gaps and to add quality-of-life
-features. This note states plainly what it is — and, more importantly, what it is **not**.
+This is a **personal weekend project, done purely out of curiosity** — a good-faith fork of
+the open-source [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDropsMiner)
+(MIT licensed). It exists to keep the tool working during upstream gaps and to add
+quality-of-life features, as a hobby exercise in tinkering with an existing public project.
+This note states plainly what it is — and, more importantly, what it is **not**.
 
 ## What I did
 
@@ -36,9 +37,10 @@ All of these are wrappers, UI, and resilience around the tool's **pre-existing**
 
 ## Nature and intent
 
-- This is a hobby/weekend project built on public code, offered openly and MIT-licensed so
-  the maintainer or anyone else can take, review, or ignore any part of it. The relevant
-  changes have been offered to upstream.
+- This is a **weekend hobby project built for my own curiosity**, on top of public code,
+  offered openly and MIT-licensed so the maintainer or anyone else can take, review, or
+  ignore any part of it. There is no commercial motive and no organization behind it — just
+  someone learning by tinkering. The relevant changes have been offered to upstream.
 - **Using any drop-mining tool may violate Twitch's Terms of Service.** That is a choice and
   risk that rests entirely with each user and their own Twitch account. This fork does not
   encourage ToS violations; it maintains and improves an already-public tool.
