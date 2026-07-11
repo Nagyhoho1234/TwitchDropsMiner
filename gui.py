@@ -1220,6 +1220,8 @@ class TrayIcon:
             self._start()
         else:
             self.icon.visible = True
+        # remember the window geometry before hiding it, in case we quit from the tray later
+        self._manager._save_window_geometry()
         self._manager._root.withdraw()
 
     def restore(self):
@@ -2685,6 +2687,8 @@ class GUIManager:
         # clamp minimum window size (update geometry first)
         root.update_idletasks()
         root.minsize(width=root.winfo_reqwidth(), height=root.winfo_reqheight())
+        # restore window position and size from the last session
+        self._restore_window_geometry()
         # register logging handler
         self._handler = _TKOutputHandler(self)
         self._handler.setFormatter(OUTPUT_FORMATTER)
@@ -2814,11 +2818,89 @@ class GUIManager:
             await asyncio.sleep(0.05)
         self._poll_task = None
 
+    def _get_virtual_screen_area(self) -> tuple[int, int, int, int]:
+        """
+        Returns the (x, y, width, height) bounds of the virtual desktop,
+        spanning all currently connected monitors.
+        """
+        root = self._root
+        if sys.platform == "win32":
+            # ask Windows directly - Tk's vroot doesn't span multiple monitors there
+            SM_XVIRTUALSCREEN = 76
+            SM_YVIRTUALSCREEN = 77
+            SM_CXVIRTUALSCREEN = 78
+            SM_CYVIRTUALSCREEN = 79
+            metrics = ctypes.windll.user32.GetSystemMetrics
+            width = metrics(SM_CXVIRTUALSCREEN)
+            height = metrics(SM_CYVIRTUALSCREEN)
+            if width > 0 and height > 0:
+                return (metrics(SM_XVIRTUALSCREEN), metrics(SM_YVIRTUALSCREEN), width, height)
+        x = root.winfo_vrootx()
+        y = root.winfo_vrooty()
+        width = root.winfo_vrootwidth()
+        height = root.winfo_vrootheight()
+        if width <= 1 or height <= 1:
+            # fall back to the primary screen dimensions
+            x, y = 0, 0
+            width = root.winfo_screenwidth()
+            height = root.winfo_screenheight()
+        return (x, y, width, height)
+
+    def _restore_window_geometry(self) -> None:
+        """
+        Applies the window position and size saved from the last session, as long as
+        the window's title bar still lands within the currently visible screen area.
+        Otherwise (monitor disconnected, garbage in the settings file),
+        keeps the default placement.
+        """
+        match = re.match(
+            r"^(\d+)x(\d+)\+(-?\d+)\+(-?\d+)$", self._twitch.settings.window_geometry
+        )
+        if match is None:
+            return
+        width, height, x, y = map(int, match.groups())
+        screen_x, screen_y, screen_width, screen_height = self._get_virtual_screen_area()
+        # require a margin of the title bar to stay reachable,
+        # so that the window can always be dragged back into view
+        margin = 40
+        if (
+            x + width < screen_x + margin
+            or x > screen_x + screen_width - margin
+            or y < screen_y  # the title bar can't extend past the top edge
+            or y > screen_y + screen_height - margin
+        ):
+            return
+        self._root.geometry(f"{width}x{height}+{x}+{y}")
+
+    def _save_window_geometry(self) -> None:
+        """
+        Stores the current window position and size, to be restored on the next run.
+        Skipped when the window is minimized or hidden into tray,
+        to avoid overwriting the last known good position.
+        """
+        root = self._root
+        try:
+            if root.state() != "normal":
+                # "withdrawn" (tray), "iconic" (minimized) or "zoomed" (maximized)
+                return
+            root.update_idletasks()
+            self._twitch.settings.window_geometry = (
+                f"{root.winfo_width()}x{root.winfo_height()}"
+                f"+{root.winfo_x()}+{root.winfo_y()}"
+            )
+        except tk.TclError:
+            # the window doesn't exist anymore
+            return
+
     def close(self, *args) -> int:
         """
         Requests the GUI application to close.
         The window itself will be closed in the closing sequence later.
         """
+        # remember the window position and size for the next run
+        # NOTE: this has to happen here, because the settings file is saved
+        # right after the close request is processed, while the window still exists
+        self._save_window_geometry()
         self._close_requested.set()
         # notify client we're supposed to close
         self._twitch.close()
