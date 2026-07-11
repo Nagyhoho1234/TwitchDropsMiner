@@ -10,7 +10,7 @@ from functools import partial
 from collections import abc, deque, OrderedDict
 from datetime import datetime, timedelta, timezone
 from contextlib import suppress, asynccontextmanager
-from typing import Any, Literal, Final, NoReturn, overload, cast, TYPE_CHECKING
+from typing import Any, Callable, Literal, Final, NoReturn, overload, cast, TYPE_CHECKING
 
 import aiohttp
 from yarl import URL
@@ -161,6 +161,7 @@ class _AuthState:
                     expires_at = now + timedelta(seconds=response_json["expires_in"])
 
                 # Print the code to the user, open them the activate page so they can type it in
+                self._twitch.emit_event("login_required")
                 await login_form.ask_enter_code(verification_uri, user_code)
 
                 payload = {
@@ -216,6 +217,7 @@ class _AuthState:
             # 'force_twitchguard': False,  # force email code confirmation
         }
 
+        self._twitch.emit_event("login_required")
         while True:
             login_data = await login_form.ask_login()
             payload["username"] = login_data.username
@@ -461,10 +463,33 @@ class Twitch:
         self._watch_transport_idx: int = 0
         self._no_progress_minutes: int = 0
         self._ws_progress_received: bool = False
+        self._mining_stalled: bool = False
+        # Internal event bus: features subscribe via on_event, producers call emit_event.
+        # Events: drop_claimed(drop), campaign_finished(campaign),
+        # mining_stalled(minutes, transport), transport_rotated(old, new),
+        # mining_recovered(transport), login_required()
+        self._event_listeners: dict[str, list[Callable[..., Any]]] = {}
         # Websocket
         self.websocket = WebsocketPool(self)
         # Maintenance task
         self._mnt_task: asyncio.Task[None] | None = None
+
+    def on_event(self, name: str, callback: Callable[..., Any]) -> None:
+        """
+        Registers a callback for an internal miner event.
+        The callback receives the event's data as keyword arguments.
+        Coroutine callbacks are scheduled as tasks; sync callbacks are called directly.
+        """
+        self._event_listeners.setdefault(name, []).append(callback)
+
+    def emit_event(self, name: str, /, **data: Any) -> None:
+        for callback in self._event_listeners.get(name, []):
+            try:
+                result = callback(**data)
+                if asyncio.iscoroutine(result):
+                    asyncio.create_task(result)
+            except Exception:
+                logger.exception(f"Event listener for '{name}' failed")
 
     async def get_session(self) -> aiohttp.ClientSession:
         if (session := self._session) is not None:
@@ -662,7 +687,10 @@ class Twitch:
                     if not campaign.upcoming:
                         for drop in campaign.drops:
                             if drop.can_claim:
-                                await drop.claim()
+                                if await drop.claim():
+                                    self.emit_event("drop_claimed", drop=drop)
+                                    if campaign.finished:
+                                        self.emit_event("campaign_finished", campaign=campaign)
                 # figure out which games we want
                 self.wanted_games.clear()
                 exclude = self.settings.exclude
@@ -916,6 +944,8 @@ class Twitch:
             # check-and-clear: did a websocket progress event arrive since the last check?
             ws_progress: bool = self._ws_progress_received
             self._ws_progress_received = False
+            # set to True only when Twitch itself reports the watched minutes went up
+            progress_confirmed: bool = False
             if self.gui.progress.minute_almost_done():
                 # If the previous update was more than ~60s ago, and the progress tracker
                 # isn't counting down anymore, that means Twitch has temporarily
@@ -923,8 +953,6 @@ class Twitch:
                 # accurate time, we can use GQL to query for the current drop,
                 # or even "pretend" mining as a last resort option.
                 handled: bool = False
-                # set to True only when Twitch itself reports the watched minutes went up
-                progress_confirmed: bool = False
                 # tracks if the current drop state could be queried at all
                 current_drop_queried: bool = False
 
@@ -983,6 +1011,12 @@ class Twitch:
                 if ws_progress or progress_confirmed or not handled:
                     # progress got confirmed, or there's no drop to expect progress on
                     self._no_progress_minutes = 0
+                    if self._mining_stalled and (ws_progress or progress_confirmed):
+                        self._mining_stalled = False
+                        self.emit_event(
+                            "mining_recovered",
+                            transport=WATCH_TRANSPORTS[self._watch_transport_idx],
+                        )
                 elif current_drop_queried:
                     # the query went through, yet Twitch reports no watching session
                     # or no watched minutes increase - our watch events aren't counted
@@ -994,6 +1028,20 @@ class Twitch:
             elif ws_progress:
                 # server-confirmed progress arrived over the websocket
                 self._no_progress_minutes = 0
+                if self._mining_stalled:
+                    self._mining_stalled = False
+                    self.emit_event(
+                        "mining_recovered",
+                        transport=WATCH_TRANSPORTS[self._watch_transport_idx],
+                    )
+            # one event per watch cycle (~1 min): whether Twitch confirmed our progress,
+            # which transport was used, and the current dead-minute count
+            self.emit_event(
+                "watch_minute",
+                confirmed=ws_progress or progress_confirmed,
+                transport=WATCH_TRANSPORTS[self._watch_transport_idx],
+                unconfirmed_minutes=self._no_progress_minutes,
+            )
             await self._watch_sleep(interval - min(time() - last_sent, interval))
 
     @task_wrapper(critical=True)
@@ -1089,6 +1137,7 @@ class Twitch:
 
     def _rotate_watch_transport(self):
         self._no_progress_minutes = 0
+        old_transport: str = WATCH_TRANSPORTS[self._watch_transport_idx]
         self._watch_transport_idx = (self._watch_transport_idx + 1) % len(WATCH_TRANSPORTS)
         transport: str = WATCH_TRANSPORTS[self._watch_transport_idx]
         logger.warning(
@@ -1096,6 +1145,14 @@ class Twitch:
             f"switching the watch transport to: {transport}"
         )
         self.print(f"Drop progress isn't being counted; switching watch method to: {transport}")
+        if not self._mining_stalled:
+            self._mining_stalled = True
+            self.emit_event(
+                "mining_stalled",
+                minutes=WATCH_TRANSPORT_SWITCH_MINUTES,
+                transport=old_transport,
+            )
+        self.emit_event("transport_rotated", old=old_transport, new=transport)
 
     @task_wrapper
     async def process_stream_state(self, channel_id: int, message: JsonType):
@@ -1227,7 +1284,10 @@ class Twitch:
                 return
             drop.update_claim(message["data"]["drop_instance_id"])
             campaign = drop.campaign
-            await drop.claim()
+            if await drop.claim():
+                self.emit_event("drop_claimed", drop=drop)
+                if campaign.finished:
+                    self.emit_event("campaign_finished", campaign=campaign)
             drop.display()
             # About 4-20s after claiming the drop, next drop can be started
             # by re-sending the watch payload. We can test for it by fetching the current drop

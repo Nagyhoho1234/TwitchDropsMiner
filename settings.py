@@ -17,6 +17,8 @@ class SettingsFile(TypedDict):
     dark_mode: bool
     exclude: set[str]
     priority: list[str]
+    webhook_url: str
+    update_check: bool
     autostart_tray: bool
     connection_quality: int
     tray_notifications: bool
@@ -30,6 +32,8 @@ default_settings: SettingsFile = {
     "priority": [],
     "exclude": set(),
     "dark_mode": False,
+    "webhook_url": "",
+    "update_check": True,
     "autostart_tray": False,
     "connection_quality": 1,
     "language": DEFAULT_LANG,
@@ -55,6 +59,8 @@ class Settings:
     dark_mode: bool
     exclude: set[str]
     priority: list[str]
+    webhook_url: str
+    update_check: bool
     autostart_tray: bool
     connection_quality: int
     tray_notifications: bool

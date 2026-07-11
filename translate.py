@@ -105,6 +105,10 @@ class GUIProgress(TypedDict):
     remaining: str
     drop_progress: str
     campaign_progress: str
+    verified: str
+    unverified: str
+    transport: str
+    eta: str
 
 
 class GUIChannelHeadings(TypedDict):
@@ -154,6 +158,7 @@ class GUIInventory(TypedDict):
     and_more: str
     percent_progress: str
     minutes_progress: str
+    eta: str
 
 
 class GUISettingsGeneral(TypedDict):
@@ -164,6 +169,11 @@ class GUISettingsGeneral(TypedDict):
     dark_mode: str
     priority_mode: str
     proxy: str
+    webhook_url: str
+    webhook_test: str
+    webhook_test_sent: str
+    webhook_test_failed: str
+    update_check: str
 
 
 class GUISettingsAdvanced(TypedDict):
@@ -202,6 +212,14 @@ class GUIHelpInvalidate(TypedDict):
     text: str
 
 
+class GUIHelpVerify(TypedDict):
+    button: str
+    text: str
+    match: str
+    mismatch: str
+    no_drop: str
+
+
 class GUIHelp(TypedDict):
     links: GUIHelpLinks
     how_it_works: str
@@ -209,6 +227,16 @@ class GUIHelp(TypedDict):
     getting_started: str
     getting_started_text: str
     invalidate: GUIHelpInvalidate
+    verify: GUIHelpVerify
+
+
+class GUIUpdate(TypedDict):
+    available: str
+    latest: str
+
+
+class GUISession(TypedDict):
+    summary: str
 
 
 class GUIMessages(TypedDict):
@@ -223,6 +251,8 @@ class GUIMessages(TypedDict):
     inventory: GUIInventory
     settings: GUISettings
     help: GUIHelp
+    update: GUIUpdate
+    session: GUISession
 
 
 class Translation(TypedDict):
@@ -329,6 +359,10 @@ default_translation: Translation = {
             "remaining": "{time} remaining",
             "drop_progress": "Progress:",
             "campaign_progress": "Progress:",
+            "verified": "Confirmed by Twitch ✔",
+            "unverified": "Not confirmed for {minutes} min ⚠",
+            "transport": "Watch method: {transport}",
+            "eta": "done ≈ {time}",
         },
         "channels": {
             "name": "Channels",
@@ -370,6 +404,7 @@ default_translation: Translation = {
             "and_more": "and {amount} more...",
             "percent_progress": "{percent} of {minutes} minutes",
             "minutes_progress": "{minutes} minutes",
+            "eta": "≈ {time} left",
         },
         "settings": {
             "general": {
@@ -380,6 +415,11 @@ default_translation: Translation = {
                 "dark_mode": "Dark mode: ",
                 "priority_mode": "Priority mode: ",
                 "proxy": "Proxy (requires restart):",
+                "webhook_url": "Discord webhook URL: ",
+                "webhook_test": "Test",
+                "webhook_test_sent": "Test message sent.",
+                "webhook_test_failed": "Sending the test message failed.",
+                "update_check": "Check for updates on startup: ",
             },
             "advanced": {
                 "name": "Advanced",
@@ -444,6 +484,25 @@ default_translation: Translation = {
                 "button": "Invalidate",
                 "text": "Invalidate the authentication token (log out):",
             },
+            "verify": {
+                "button": "Verify",
+                "text": "Verify drop progress against the Twitch servers:",
+                "match": "Server-side progress matches the local state.",
+                "mismatch": (
+                    "Mismatch! Local: {local} min, server: {server} min for \"{drop}\"."
+                ),
+                "no_drop": "There is no actively mined drop to verify.",
+            },
+        },
+        "update": {
+            "available": "New version available: {version}",
+            "latest": "You're running the latest version.",
+        },
+        "session": {
+            "summary": (
+                "Session: {drops} drops claimed, "
+                "{minutes} min mined, {campaigns} campaigns finished"
+            ),
         },
     },
 }

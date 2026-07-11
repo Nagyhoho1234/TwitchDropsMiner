@@ -85,7 +85,11 @@
             "campaign": "Kampány:",
             "remaining": "{time} van hátra",
             "drop_progress": "Előrehaladás:",
-            "campaign_progress": "Előrehaladás:"
+            "campaign_progress": "Előrehaladás:",
+            "verified": "A Twitch megerősítette ✔",
+            "unverified": "Nincs megerősítve {minutes} perce ⚠",
+            "transport": "Nézési mód: {transport}",
+            "eta": "kész ≈ {time}"
         },
         "channels": {
             "name": "Csatornák",
@@ -126,7 +130,8 @@
             "all_channels": "Mind",
             "and_more": "és még {amount}...",
             "percent_progress": "{minutes} percből {percent}",
-            "minutes_progress": "{minutes} perc"
+            "minutes_progress": "{minutes} perc",
+            "eta": "≈ {time} van hátra"
         },
         "settings": {
             "general": {
@@ -136,7 +141,12 @@
                 "tray_notifications": "Tálcaértesítések: ",
                 "dark_mode": "Sötét mód: ",
                 "priority_mode": "Prioritási mód: ",
-                "proxy": "Proxy (újraindítást igényel):"
+                "proxy": "Proxy (újraindítást igényel):",
+                "webhook_url": "Discord webhook URL: ",
+                "webhook_test": "Teszt",
+                "webhook_test_sent": "Tesztüzenet elküldve.",
+                "webhook_test_failed": "A tesztüzenet küldése nem sikerült.",
+                "update_check": "Frissítések keresése induláskor: "
             },
             "advanced": {
                 "name": "Haladó",
@@ -169,7 +179,21 @@
             "invalidate": {
                 "button": "Érvénytelenítés",
                 "text": "A hitelesítési token érvénytelenítése (kijelentkezés):"
+            },
+            "verify": {
+                "button": "Ellenőrzés",
+                "text": "A drop-előrehaladás ellenőrzése a Twitch szerverein:",
+                "match": "A szerveren nyilvántartott előrehaladás megegyezik a helyivel.",
+                "mismatch": "Eltérés! Helyi: {local} perc, szerver: {server} perc – „{drop}”.",
+                "no_drop": "Nincs éppen bányászott drop, amit ellenőrizni lehetne."
             }
+        },
+        "update": {
+            "available": "Új verzió érhető el: {version}",
+            "latest": "A legfrissebb verziót használod."
+        },
+        "session": {
+            "summary": "Munkamenet: {drops} átvett drop, {minutes} perc bányászva, {campaigns} befejezett kampány"
         }
     }
 }
