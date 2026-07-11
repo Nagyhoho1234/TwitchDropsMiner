@@ -1967,6 +1967,17 @@ class SettingsPanel:
             command=self._manager._twitch.state_change(State.INVENTORY_FETCH),
         ).grid(column=1, row=0)
 
+    def reload_priority_display(self) -> None:
+        # Rebuild the priority listbox and priority-mode combobox from current settings.
+        # Called by the "This Week" tab after it applies a new selection.
+        self._priority_list.delete(0, "end")
+        for name in self._settings.priority:
+            self._priority_list.insert("end", name)
+        self.update_priority_choices()
+        mode = self._settings.priority_mode
+        if mode in self.PRIORITY_MODES:
+            self._vars["priority_mode"].set(self.PRIORITY_MODES[mode])
+
     def clear_selection(self) -> None:
         self._priority_list.selection_clear(0, "end")
         self._exclude_list.selection_clear(0, "end")
@@ -2350,6 +2361,231 @@ class HelpTab:
         self._twitch.change_state(State.RESTART)
 
 
+class WeeklyPicker:
+    """
+    "This Week" tab: lists the active/upcoming drop campaigns for the coming week
+    with a checkbox each. Applying the selection writes the chosen games into the
+    priority list, switches to PRIORITY_ONLY mode, and triggers a reload so the
+    miner starts collecting them from live participating channels.
+    """
+    WEEK_DAYS = 7
+
+    def __init__(self, manager: GUIManager, master: ttk.Widget):
+        self._manager = manager
+        self._settings: Settings = manager._twitch.settings
+        self._frame = master
+        # campaign_id -> (checkbox var, campaign)
+        self._rows: dict[str, tuple[IntVar, DropsCampaign]] = {}
+        bold = nametofont("TkDefaultFont").copy()
+        bold.configure(weight="bold")
+        self._bold = bold
+
+        master.rowconfigure(1, weight=1)
+        master.columnconfigure(0, weight=1)
+
+        # ---- top control bar ----
+        top = ttk.Frame(master, padding=(0, 0, 0, 6))
+        top.grid(column=0, row=0, columnspan=2, sticky="ew")
+        ttk.Label(
+            top,
+            text=_("gui", "weekly", "intro"),
+            wraplength=680,
+            justify="left",
+        ).grid(column=0, row=0, columnspan=6, sticky="w", pady=(0, 4))
+        ttk.Button(top, text=_("gui", "weekly", "refresh"), command=self.refetch).grid(
+            column=0, row=1, sticky="w"
+        )
+        self._hide_ineligible = IntVar(master, 0)
+        ttk.Checkbutton(
+            top,
+            text=_("gui", "weekly", "only_earnable"),
+            variable=self._hide_ineligible,
+            command=self.refresh,
+        ).grid(column=1, row=1, sticky="w", padx=(10, 0))
+        ttk.Button(top, text=_("gui", "weekly", "apply"), command=self.apply).grid(
+            column=2, row=1, sticky="w", padx=(10, 0)
+        )
+        self._status = ttk.Label(top, text="", padding=(0, 4, 0, 0))
+        self._status.grid(column=0, row=2, columnspan=6, sticky="w")
+
+        # ---- scrollable list ----
+        self._canvas = tk.Canvas(master, scrollregion=(0, 0, 0, 0), highlightthickness=0)
+        self._canvas.grid(column=0, row=1, sticky="nsew")
+        yscroll = ttk.Scrollbar(master, orient="vertical", command=self._canvas.yview)
+        yscroll.grid(column=1, row=1, sticky="ns")
+        self._canvas.configure(yscrollcommand=yscroll.set)
+        self._canvas.bind(
+            "<Enter>", lambda e: self._canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        )
+        self._canvas.bind("<Leave>", lambda e: self._canvas.unbind_all("<MouseWheel>"))
+        self._canvas.bind(
+            "<Configure>",
+            lambda e: self._canvas.itemconfigure(self._window, width=e.width),
+        )
+        self._list = ttk.Frame(self._canvas)
+        self._list.columnconfigure(0, weight=1)
+        self._window = self._canvas.create_window(0, 0, anchor="nw", window=self._list)
+        self._list.bind(
+            "<Configure>",
+            lambda e: self._canvas.configure(scrollregion=self._canvas.bbox("all")),
+        )
+
+        manager.tabs.add_view_event(self._on_tab_switched)
+
+    def _on_mousewheel(self, event: tk.Event) -> None:
+        self._canvas.yview_scroll(-1 * (event.delta // 120), "units")
+
+    def _on_tab_switched(self, event: "tk.Event[ttk.Notebook]") -> None:
+        # refresh whenever this tab becomes the visible one
+        if self._manager.tabs._nb.select() == str(self._frame):
+            self.refresh()
+
+    def refetch(self) -> None:
+        # Pull fresh data from Twitch: account-link status, progress, new/expired
+        # campaigns. The fetch is async; fetch_inventory() calls refresh() on this
+        # tab when it finishes, so the rows update themselves once it completes.
+        self._status.config(text=_("gui", "weekly", "refreshing"))
+        self._manager._twitch.change_state(State.INVENTORY_FETCH)
+
+    def configure_theme(self, *, bg: str) -> None:
+        self._canvas.configure(bg=bg)
+
+    def _week_campaigns(self) -> list[DropsCampaign]:
+        now = datetime.now(timezone.utc)
+        horizon = now + timedelta(days=self.WEEK_DAYS)
+        result: list[DropsCampaign] = []
+        for c in self._manager._twitch.inventory:
+            if c.required_minutes <= 0:
+                continue  # skip sub-only / no-watch campaigns
+            if not (c.active or (c.upcoming and c.starts_at <= horizon)):
+                continue
+            if c.finished:
+                continue  # every drop already claimed
+            if c.active and c.availability < 1.0:
+                continue  # not enough time left to finish the required watch minutes
+            if self._hide_ineligible.get() and not c.eligible:
+                continue
+            result.append(c)
+        # active first, then by soonest end date
+        result.sort(key=lambda c: c.ends_at)
+        result.sort(key=lambda c: not c.active)
+        return result
+
+    def refresh(self) -> None:
+        # wipe old rows
+        for child in self._list.winfo_children():
+            child.destroy()
+        self._rows.clear()
+
+        campaigns = self._week_campaigns()
+        if not self._manager._twitch.inventory:
+            ttk.Label(
+                self._list,
+                text=_("gui", "weekly", "no_data"),
+                padding=8,
+            ).grid(column=0, row=0, sticky="w")
+            return
+        if not campaigns:
+            ttk.Label(
+                self._list,
+                text=_("gui", "weekly", "no_campaigns"),
+                padding=8,
+            ).grid(column=0, row=0, sticky="w")
+            return
+
+        now = datetime.now(timezone.utc)
+        for i, c in enumerate(campaigns):
+            var = IntVar(self._list, int(c.game.name in self._settings.priority))
+            self._rows[c.id] = (var, c)
+
+            row = ttk.Frame(self._list, relief="groove", borderwidth=1, padding=(6, 4))
+            row.grid(column=0, row=i, sticky="ew", pady=1)
+            row.columnconfigure(2, weight=1)
+
+            ttk.Checkbutton(row, variable=var).grid(column=0, row=0, rowspan=2, padx=(0, 6))
+
+            if c.active:
+                days = max((c.ends_at - now).days, 0)
+                badge = _("gui", "weekly", "badge_active").format(days=days)
+                style = "green.TLabel"
+            else:
+                days = max((c.starts_at - now).days, 0)
+                badge = _("gui", "weekly", "badge_upcoming").format(days=days)
+                style = "yellow.TLabel"
+            ttk.Label(row, text=badge, style=style, width=10).grid(
+                column=1, row=0, rowspan=2, sticky="w", padx=(0, 6)
+            )
+
+            ttk.Label(row, text=c.game.name, font=self._bold).grid(
+                column=2, row=0, sticky="w"
+            )
+            n_ch = len(c.allowed_channels)
+            if n_ch:
+                where = _("gui", "weekly", "channels_some").format(count=n_ch)
+            else:
+                where = _("gui", "weekly", "channels_any")
+            if c.linked:
+                link = _("gui", "weekly", "linked")
+            else:
+                link = _("gui", "weekly", "not_linked")
+            meta = _("gui", "weekly", "meta").format(
+                campaign=c.name,
+                drops=c.total_drops,
+                minutes=c.required_minutes,
+                where=where,
+                link=link,
+            )
+            ttk.Label(row, text=meta).grid(column=2, row=1, sticky="w")
+
+            rewards = ", ".join(
+                b.name for d in c.drops for b in d.benefits
+            )
+            if rewards:
+                if len(rewards) > 100:
+                    rewards = rewards[:100] + "…"
+                ttk.Label(row, text=f"🎁 {rewards}", foreground="#888").grid(
+                    column=2, row=2, sticky="w"
+                )
+
+            # Unlinked campaigns can't be earned until the account is connected -
+            # offer a one-click shortcut to the campaign's account-linking page.
+            if not c.linked and c.link_url:
+                ttk.Button(
+                    row,
+                    text=_("gui", "weekly", "link_account"),
+                    command=lambda url=c.link_url: webopen(url),
+                ).grid(column=3, row=0, rowspan=3, sticky="e", padx=(6, 0))
+
+        self._status.config(
+            text=_("gui", "weekly", "status_count").format(
+                count=len(campaigns),
+                selected=sum(v.get() for v, _c in self._rows.values()),
+            )
+        )
+
+    def apply(self) -> None:
+        chosen: list[str] = []
+        for var, c in self._rows.values():
+            if var.get() and c.game.name not in chosen:
+                chosen.append(c.game.name)
+        if not chosen:
+            self._status.config(text=_("gui", "weekly", "nothing_selected"))
+            return
+        self._settings.priority = chosen
+        self._settings.priority_mode = PriorityMode.PRIORITY_ONLY
+        self._settings.alter()
+        self._settings.save(force=True)
+        # keep the Settings tab's priority display in sync
+        self._manager.settings.reload_priority_display()
+        self._status.config(
+            text=_("gui", "weekly", "applied").format(
+                count=len(chosen), games=', '.join(chosen)
+            )
+        )
+        # reload inventory + re-evaluate priorities, which kicks off mining
+        self._manager._twitch.change_state(State.INVENTORY_FETCH)
+
+
 ##########################################
 # GUI DEFINITION END / GUI MANAGER START #
 ##########################################
@@ -2434,6 +2670,10 @@ class GUIManager:
         inv_frame = ttk.Frame(root_frame, padding=8)
         self.inv = InventoryOverview(self, inv_frame)
         self.tabs.add_tab(inv_frame, name=_("gui", "tabs", "inventory"))
+        # This Week tab (weekly campaign picker)
+        week_frame = ttk.Frame(root_frame, padding=8)
+        self.weekly = WeeklyPicker(self, week_frame)
+        self.tabs.add_tab(week_frame, name=_("gui", "tabs", "this_week"))
         # Settings tab
         settings_frame = ttk.Frame(root_frame, padding=8)
         self.settings = SettingsPanel(self, settings_frame)
@@ -2824,6 +3064,8 @@ class GUIManager:
         )
         # Inventory canvas
         self.inv.configure_theme(bg=bg)
+        # This Week canvas
+        self.weekly.configure_theme(bg=bg)
 
         # Tk option database for selection/popup list readability (affects Tk-backed widgets)
         # Global selection colors and listbox defaults (covers Combobox dropdown)

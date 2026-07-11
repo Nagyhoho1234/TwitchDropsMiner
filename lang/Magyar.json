@@ -47,7 +47,8 @@
             "main": "Főoldal",
             "inventory": "Készlet",
             "settings": "Beállítások",
-            "help": "Súgó"
+            "help": "Súgó",
+            "this_week": "Ezen a héten"
         },
         "tray": {
             "notification_title": "Kibányászott drop",
@@ -194,6 +195,26 @@
         },
         "session": {
             "summary": "Munkamenet: {drops} átvett drop, {minutes} perc bányászva, {campaigns} befejezett kampány"
+        },
+        "weekly": {
+            "intro": "Pipáld ki azokat a kampányokat, amelyeket ezen a héten szeretnél gyűjteni, majd nyomd meg az Alkalmaz gombot. A bányászó ezeket a játékokat veszi előre, és élő, résztvevő csatornákról gyűjti őket.",
+            "refresh": "🔄 Frissítés a Twitchről",
+            "only_earnable": "Csak a megszerezhetők (összekapcsolt fiókkal)",
+            "apply": "✅ Kijelölés alkalmazása ▶ bányászat indítása",
+            "refreshing": "⏳ Frissítés a Twitchről… (néhány másodperc múlva frissül)",
+            "no_data": "Még nincsenek kampányadatok – jelentkezz be, várd meg, míg a készlet betöltődik, majd nyomd meg a Frissítést.",
+            "no_campaigns": "Nincs a következő hétre eső kampány.",
+            "badge_active": "● {days} nap",
+            "badge_upcoming": "◷ {days} nap",
+            "meta": "{campaign}  ·  {drops} drop, max. {minutes} perc  ·  {where}  ·  {link}",
+            "channels_some": "{count} csatorna",
+            "channels_any": "bármely csatorna",
+            "linked": "✔ összekapcsolva",
+            "not_linked": "✖ nincs összekapcsolva",
+            "link_account": "🔗 Fiók összekapcsolása",
+            "status_count": "{count} kampány ezen a héten. {selected} előre kijelölve a prioritási listád alapján.",
+            "nothing_selected": "⚠ Nincs semmi kipipálva – előbb jelölj ki legalább egy kampányt.",
+            "applied": "✅ Alkalmazva: {count} játék ({games}). Újratöltés…"
         }
     }
 }

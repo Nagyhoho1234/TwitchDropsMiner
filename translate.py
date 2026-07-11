@@ -63,6 +63,28 @@ class GUITabs(TypedDict):
     inventory: str
     settings: str
     help: str
+    this_week: str
+
+
+class GUIWeekly(TypedDict):
+    intro: str
+    refresh: str
+    only_earnable: str
+    apply: str
+    refreshing: str
+    no_data: str
+    no_campaigns: str
+    badge_active: str
+    badge_upcoming: str
+    meta: str
+    channels_some: str
+    channels_any: str
+    linked: str
+    not_linked: str
+    link_account: str
+    status_count: str
+    nothing_selected: str
+    applied: str
 
 
 class GUITray(TypedDict):
@@ -253,6 +275,7 @@ class GUIMessages(TypedDict):
     help: GUIHelp
     update: GUIUpdate
     session: GUISession
+    weekly: GUIWeekly
 
 
 class Translation(TypedDict):
@@ -317,6 +340,7 @@ default_translation: Translation = {
             "adding_campaigns": "Adding campaigns to inventory... {counter}",
         },
         "tabs": {
+            "this_week": "This Week",
             "main": "Main",
             "inventory": "Inventory",
             "settings": "Settings",
@@ -503,6 +527,36 @@ default_translation: Translation = {
                 "Session: {drops} drops claimed, "
                 "{minutes} min mined, {campaigns} campaigns finished"
             ),
+        },
+        "weekly": {
+            "intro": (
+                "Tick the campaigns you want to farm this week, then Apply. "
+                "The miner will prioritise those games and collect them from "
+                "live participating channels."
+            ),
+            "refresh": "🔄 Refresh from Twitch",
+            "only_earnable": "Only show ones I can earn (account-linked)",
+            "apply": "✅ Apply selection ▶ start mining",
+            "refreshing": "⏳ Refreshing from Twitch… (updates in a few seconds)",
+            "no_data": (
+                "No campaign data yet — log in and let the inventory finish loading, "
+                "then hit Refresh."
+            ),
+            "no_campaigns": "No campaigns match for the coming week.",
+            "badge_active": "● {days}d left",
+            "badge_upcoming": "◷ in {days}d",
+            "meta": "{campaign}  ·  {drops} drop(s), up to {minutes} min  ·  {where}  ·  {link}",
+            "channels_some": "{count} channel(s)",
+            "channels_any": "any channel",
+            "linked": "✔ linked",
+            "not_linked": "✖ not linked",
+            "link_account": "🔗 Link account",
+            "status_count": (
+                "{count} campaign(s) this week. "
+                "{selected} pre-selected from your priority list."
+            ),
+            "nothing_selected": "⚠ Nothing ticked — select at least one campaign first.",
+            "applied": "✅ Applied {count} game(s): {games}. Reloading…",
         },
     },
 }
