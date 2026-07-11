@@ -481,6 +481,13 @@ class Twitch:
         self._watching_restart = asyncio.Event()
         # Watch transport rotation (see the _watch_loop watchdog)
         self._watch_transport_idx: int = 0
+        # last transport that produced server-confirmed progress - the best guess for
+        # what the real web client currently uses; rotation settles back on it when
+        # every transport has been tried without success (a Twitch-side outage)
+        self._known_good_transport_idx: int = 0
+        # rotations performed in the current stall episode (bounds the rotation to a
+        # single pass so we never keep cycling transports the web client no longer uses)
+        self._rotations_since_stall: int = 0
         self._no_progress_minutes: int = 0
         self._ws_progress_received: bool = False
         self._mining_stalled: bool = False
@@ -1102,12 +1109,17 @@ class Twitch:
                 if ws_progress or progress_confirmed or not handled:
                     # progress got confirmed, or there's no drop to expect progress on
                     self._no_progress_minutes = 0
-                    if self._mining_stalled and (ws_progress or progress_confirmed):
-                        self._mining_stalled = False
-                        self.emit_event(
-                            "mining_recovered",
-                            transport=WATCH_TRANSPORTS[self._watch_transport_idx],
-                        )
+                    if ws_progress or progress_confirmed:
+                        # real server-confirmed progress: the current transport works,
+                        # remember it and reset the rotation attempt counter
+                        self._known_good_transport_idx = self._watch_transport_idx
+                        self._rotations_since_stall = 0
+                        if self._mining_stalled:
+                            self._mining_stalled = False
+                            self.emit_event(
+                                "mining_recovered",
+                                transport=WATCH_TRANSPORTS[self._watch_transport_idx],
+                            )
                 elif current_drop_queried:
                     # the query went through, yet Twitch reports no watching session
                     # or no watched minutes increase - our watch events aren't counted
@@ -1119,6 +1131,8 @@ class Twitch:
             elif ws_progress:
                 # server-confirmed progress arrived over the websocket
                 self._no_progress_minutes = 0
+                self._known_good_transport_idx = self._watch_transport_idx
+                self._rotations_since_stall = 0
                 if self._mining_stalled:
                     self._mining_stalled = False
                     self.emit_event(
@@ -1228,8 +1242,28 @@ class Twitch:
 
     def _rotate_watch_transport(self):
         self._no_progress_minutes = 0
+        # Bounded rotation: try each alternate transport at most once per stall. If a full
+        # pass restores nothing, this is a Twitch-side outage rather than a transport we can
+        # fix by switching - stop cycling (which would keep emitting watch events through
+        # methods the current web client no longer uses, the only case where rotation could
+        # look unusual) and settle back on the last-known-good transport, alerting only.
+        if self._rotations_since_stall >= len(WATCH_TRANSPORTS) - 1:
+            if self._watch_transport_idx != self._known_good_transport_idx:
+                self._watch_transport_idx = self._known_good_transport_idx
+                transport = WATCH_TRANSPORTS[self._watch_transport_idx]
+                logger.warning(
+                    "All watch methods tried without restoring progress; this looks like a "
+                    f"Twitch-side outage. Settling back on '{transport}' and waiting for it "
+                    "to recover."
+                )
+                self.print(
+                    "Drop progress still isn't counted after trying every watch method - "
+                    "this looks like a Twitch-side issue. Waiting for it to recover."
+                )
+            return
         old_transport: str = WATCH_TRANSPORTS[self._watch_transport_idx]
         self._watch_transport_idx = (self._watch_transport_idx + 1) % len(WATCH_TRANSPORTS)
+        self._rotations_since_stall += 1
         transport: str = WATCH_TRANSPORTS[self._watch_transport_idx]
         logger.warning(
             f"No server-confirmed drop progress for {WATCH_TRANSPORT_SWITCH_MINUTES} minutes, "
