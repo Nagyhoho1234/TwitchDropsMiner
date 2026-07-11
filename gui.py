@@ -2898,10 +2898,9 @@ class GUIManager:
                 # "withdrawn" (tray), "iconic" (minimized) or "zoomed" (maximized)
                 return
             root.update_idletasks()
-            self._twitch.settings.window_geometry = (
-                f"{root.winfo_width()}x{root.winfo_height()}"
-                f"+{root.winfo_x()}+{root.winfo_y()}"
-            )
+            # NOTE: use the geometry() getter rather than composing from winfo_x/y,
+            # which doesn't round-trip on Windows (window creeps by the border size)
+            self._twitch.settings.window_geometry = root.geometry()
         except tk.TclError:
             # the window doesn't exist anymore
             return

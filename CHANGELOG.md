@@ -4,6 +4,41 @@ This fork tracks [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDro
 master, with the changes below applied on top. If upstream ships its own fix for an issue
 listed here, prefer upstream's version.
 
+## v16-fork.3 — 2026-07-11
+
+Implements the most-requested items from the upstream issue tracker.
+
+### Added
+- **Headless mode** (upstream [#17](https://github.com/DevilXD/TwitchDropsMiner/issues/17),
+  the most-upvoted request): run with `--headless` for servers and Raspberry Pi —
+  no GUI and no tkinter required at all. Login uses the device-code flow printed
+  to the console; progress, status, notifications and trust indicators are logged
+  as console lines. Works alongside the Discord webhook notifications for full
+  remote monitoring.
+- **New-campaign alerts** (upstream [#767](https://github.com/DevilXD/TwitchDropsMiner/issues/767)):
+  when a reload discovers a campaign that wasn't there before, the miner prints it,
+  sends a tray notification, and posts a Discord webhook message.
+- **Window position & size memory** (upstream [#146](https://github.com/DevilXD/TwitchDropsMiner/issues/146),
+  [#1092](https://github.com/DevilXD/TwitchDropsMiner/issues/1092)): restored on startup,
+  with multi-monitor safety — a position saved on a disconnected monitor falls back
+  to default placement instead of restoring off-screen.
+- **Skip unfinishable campaigns** (upstream [#955](https://github.com/DevilXD/TwitchDropsMiner/issues/955),
+  Settings → General, off by default): don't spend watch time on active campaigns
+  whose remaining runtime is shorter than the watch time they still require.
+
+### Fixed
+- **Blank settings.json after reboot** (upstream [#1042](https://github.com/DevilXD/TwitchDropsMiner/issues/1042)):
+  settings are now flushed to disk before the atomic rename, so a crash or power
+  loss can no longer leave an empty file behind.
+- **"Stream state change for a non-existing channel" ERROR spam**
+  (upstream [#110](https://github.com/DevilXD/TwitchDropsMiner/issues/110)): these are a
+  benign cleanup race and are now logged at trace level only.
+
+### Verified
+- **Python 3.14.6 on Windows** (for upstream [#1081](https://github.com/DevilXD/TwitchDropsMiner/issues/1081)):
+  all dependencies install, every module imports, PyInstaller packages successfully,
+  and the resulting exe launches — no code changes required.
+
 ## v16-fork.2 — 2026-07-11
 
 ### Added
