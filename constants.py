@@ -128,6 +128,12 @@ PING_INTERVAL = timedelta(minutes=3)
 PING_TIMEOUT = timedelta(seconds=10)
 ONLINE_DELAY = timedelta(seconds=120)
 WATCH_INTERVAL = timedelta(seconds=59)
+# Watch transports, in rotation order. Twitch has flip-flopped between counting
+# Spade POST and GQL watch events (issues #1038, #1099) - if no server-confirmed
+# drop progress happens for WATCH_TRANSPORT_SWITCH_MINUTES in a row,
+# the watch loop watchdog rotates to the next transport.
+WATCH_TRANSPORTS: tuple[str, ...] = ("spade", "gql", "playlist")
+WATCH_TRANSPORT_SWITCH_MINUTES = 15
 # Strings
 WINDOW_TITLE = f"Twitch Drops Miner v{__version__} (by DevilXD)"
 # Logging

@@ -6,15 +6,14 @@ import json
 import asyncio
 import logging
 from base64 import b64encode
-from functools import cached_property
 from typing import Any, SupportsInt, cast, TYPE_CHECKING
 
 import aiohttp
 from yarl import URL
 
 from utils import Game, json_minify, isonow
-from exceptions import MinerException, RequestException
-from constants import CALL, GQL_QUERIES, ONLINE_DELAY, URLType, GQLQuery
+from exceptions import ExitRequest, MinerException, RequestException
+from constants import CALL, GQL_QUERIES, ONLINE_DELAY, WATCH_TRANSPORTS, URLType, GQLQuery
 
 if TYPE_CHECKING:
     from twitch import Twitch
@@ -43,54 +42,35 @@ class Stream:
         self.title: str = title
         self._stream_url: URLType | None = None
 
+    def _watch_properties(self) -> JsonType:
+        # single source of truth for the "minute-watched" event properties,
+        # shared by both the Spade and GQL transports
+        return {
+            "broadcast_id": str(self.broadcast_id),
+            "channel_id": str(self.channel.id),
+            "channel": self.channel._login,
+            "client_time": isonow(),
+            "game": self.game.name if self.game is not None else "",
+            "game_id": str(self.game.id) if self.game is not None else "",
+            "hidden": False,
+            "is_live": True,
+            "live": True,
+            "location": "channel",
+            "logged_in": True,
+            "minutes_logged": 1,
+            "muted": False,
+            "player": "site",
+            "user_id": self.channel._twitch._auth_state.user_id,
+        }
+
     @property
     def _spade_payload(self) -> JsonType:
-        payload = [
-            {
-                "event": "minute-watched",
-                "properties": {
-                    "broadcast_id": str(self.broadcast_id),
-                    "channel_id": str(self.channel.id),
-                    "channel": self.channel._login,
-                    "client_time": isonow(),
-                    "game": self.game.name if self.game is not None else "",
-                    "game_id": str(self.game.id) if self.game is not None else "",
-                    "hidden": False,
-                    "is_live": True,
-                    "live": True,
-                    "location": "channel",
-                    "logged_in": True,
-                    "minutes_logged": 1,
-                    "muted": False,
-                    "player": "site",
-                    "user_id": self.channel._twitch._auth_state.user_id,
-                }
-            }
-        ]
+        payload = [{"event": "minute-watched", "properties": self._watch_properties()}]
         return {"data": (b64encode(json_minify(payload).encode("utf8"))).decode("utf8")}
 
-    @cached_property
+    @property
     def _gql_payload(self) -> GQLQuery:
-        payload = [
-            {
-                "event": "minute-watched",
-                "properties": {
-                    "broadcast_id": str(self.broadcast_id),
-                    "channel_id": str(self.channel.id),
-                    "channel": self.channel._login,
-                    "client_time": isonow(),
-                    "game": self.game.name if self.game is not None else "",
-                    "game_id": str(self.game.id) if self.game is not None else "",
-                    "hidden": False,
-                    "is_live": True,
-                    "live": True,
-                    "logged_in": True,
-                    "minutes_logged": 1,
-                    "muted": False,
-                    "user_id": self.channel._twitch._auth_state.user_id,
-                }
-            }
-        ]
+        payload = [{"event": "minute-watched", "properties": self._watch_properties()}]
         return GQLQuery(
             (
                 "\n mutation SendEvents($input: SendSpadeEventsInput!) "
@@ -443,15 +423,22 @@ class Channel:
         if needs_display:
             self.display()
 
-    # NOTE: This is currently unused.
     async def _send_watch_playlist(self) -> bool:
         """
         This performs a HEAD request on the stream's current playlist,
         to simulate watching the stream.
         Optimally, send every ~20 seconds to advance drops.
+        Used as the last-resort watch transport.
         """
         if self._stream is None:
             return False
+        try:
+            return await self._send_watch_playlist_inner()
+        except (RequestException, aiohttp.ClientError, ValueError, IndexError):
+            return False
+
+    async def _send_watch_playlist_inner(self) -> bool:
+        assert self._stream is not None
         # get the stream url
         stream_url = await self._stream.get_stream_url()
         if stream_url is None:
@@ -489,14 +476,18 @@ class Channel:
         chunks_list: list[str] = available_chunks.strip().split("\n")
         selected_chunk: str = chunks_list[-1]
         if selected_chunk == "#EXT-X-ENDLIST":
+            if len(chunks_list) < 2:
+                return False
             selected_chunk = chunks_list[-2]
+        if not selected_chunk:
+            return False
         stream_chunk_url: URLType = URLType(selected_chunk)
         # sending a HEAD request is enough to advance the drops,
         # without downloading the actual stream data
         async with self._twitch.request("HEAD", stream_chunk_url) as head_response:
             return head_response.status == 200
 
-    async def send_watch(self) -> bool:  # send_watch_spade
+    async def _send_watch_spade(self) -> bool:
         if self._stream is None:
             return False
         if self._spade_url is None:
@@ -509,8 +500,6 @@ class Channel:
         except RequestException:
             return False
 
-    # NOTE: This is currently unused.
-    # Twitch stopped counting this GQL mutation as watch time; use send_watch (spade) instead.
     async def _send_watch_gql(self) -> bool:
         if self._stream is None:
             return False
@@ -518,4 +507,26 @@ class Channel:
             watch_response = await self._twitch.gql_request(self._stream._gql_payload)
             return watch_response["data"]["sendSpadeEvents"]["statusCode"] == 204
         except RequestException:
+            return False
+
+    async def send_watch(self) -> bool:
+        """
+        Sends the "minute-watched" event via the currently selected transport.
+
+        Twitch has flip-flopped between counting Spade POST and GQL watch events
+        (issues #1038, #1099). The watch loop watchdog rotates the transport
+        if the current one stops being counted server-side.
+        """
+        transport: str = WATCH_TRANSPORTS[self._twitch._watch_transport_idx]
+        try:
+            if transport == "gql":
+                return await self._send_watch_gql()
+            elif transport == "playlist":
+                return await self._send_watch_playlist()
+            return await self._send_watch_spade()
+        except ExitRequest:
+            raise
+        except Exception:
+            # a failed send is never allowed to bring down the critical watch loop task
+            logger.exception(f"Sending the watch payload via '{transport}' failed")
             return False

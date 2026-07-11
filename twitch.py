@@ -48,6 +48,8 @@ from constants import (
     MAX_CHANNELS,
     GQL_QUERIES,
     WATCH_INTERVAL,
+    WATCH_TRANSPORTS,
+    WATCH_TRANSPORT_SWITCH_MINUTES,
     State,
     ClientType,
     PriorityMode,
@@ -455,6 +457,10 @@ class Twitch:
         self.watching_channel: AwaitableValue[Channel] = AwaitableValue()
         self._watching_task: asyncio.Task[None] | None = None
         self._watching_restart = asyncio.Event()
+        # Watch transport rotation (see the _watch_loop watchdog)
+        self._watch_transport_idx: int = 0
+        self._no_progress_minutes: int = 0
+        self._ws_progress_received: bool = False
         # Websocket
         self.websocket = WebsocketPool(self)
         # Maintenance task
@@ -907,6 +913,9 @@ class Twitch:
                 logger.log(CALL, f"Watch requested failed for channel: {channel.name}")
             # wait ~20 seconds for a progress update
             await asyncio.sleep(20)
+            # check-and-clear: did a websocket progress event arrive since the last check?
+            ws_progress: bool = self._ws_progress_received
+            self._ws_progress_received = False
             if self.gui.progress.minute_almost_done():
                 # If the previous update was more than ~60s ago, and the progress tracker
                 # isn't counting down anymore, that means Twitch has temporarily
@@ -914,6 +923,10 @@ class Twitch:
                 # accurate time, we can use GQL to query for the current drop,
                 # or even "pretend" mining as a last resort option.
                 handled: bool = False
+                # set to True only when Twitch itself reports the watched minutes went up
+                progress_confirmed: bool = False
+                # tracks if the current drop state could be queried at all
+                current_drop_queried: bool = False
 
                 # Solution 1: use GQL to query for the currently mined drop status
                 try:
@@ -925,12 +938,19 @@ class Twitch:
                     drop_data: JsonType | None = (
                         context["data"]["currentUser"]["dropCurrentSession"]
                     )
-                except GQLException:
+                    current_drop_queried = True
+                except (RequestException, KeyError):
                     drop_data = None
                 if drop_data is not None:
-                    gql_drop: TimedDrop | None = self._drops.get(drop_data["dropID"])
-                    if gql_drop is not None and gql_drop.can_earn(channel):
-                        gql_drop.update_minutes(drop_data["currentMinutesWatched"])
+                    gql_drop: TimedDrop | None = self._drops.get(drop_data.get("dropID"))
+                    server_minutes: int | None = drop_data.get("currentMinutesWatched")
+                    if (
+                        gql_drop is not None
+                        and server_minutes is not None
+                        and gql_drop.can_earn(channel)
+                    ):
+                        progress_confirmed = server_minutes > gql_drop.real_current_minutes
+                        gql_drop.update_minutes(server_minutes)
                         drop_text: str = (
                             f"{gql_drop.name} ({gql_drop.campaign.game}, "
                             f"{gql_drop.current_minutes}/{gql_drop.required_minutes})"
@@ -955,6 +975,25 @@ class Twitch:
                         handled = True
                     else:
                         logger.log(CALL, "No active drop could be determined")
+
+                # Transport watchdog: watch events are sent out, and there's a drop
+                # we should be earning, but Twitch isn't counting our watch time
+                # via the current transport - try the next one after enough dead minutes.
+                # NOTE: Progress "bumped" locally by Solution 2 above isn't real progress.
+                if ws_progress or progress_confirmed or not handled:
+                    # progress got confirmed, or there's no drop to expect progress on
+                    self._no_progress_minutes = 0
+                elif current_drop_queried:
+                    # the query went through, yet Twitch reports no watching session
+                    # or no watched minutes increase - our watch events aren't counted
+                    self._no_progress_minutes += 1
+                    if self._no_progress_minutes >= WATCH_TRANSPORT_SWITCH_MINUTES:
+                        self._rotate_watch_transport()
+                # otherwise, GQL is down and there's no way to tell either way,
+                # so leave the counter unchanged
+            elif ws_progress:
+                # server-confirmed progress arrived over the websocket
+                self._no_progress_minutes = 0
             await self._watch_sleep(interval - min(time() - last_sent, interval))
 
     @task_wrapper(critical=True)
@@ -1047,6 +1086,16 @@ class Twitch:
     def restart_watching(self):
         self.gui.progress.stop_timer()
         self._watching_restart.set()
+
+    def _rotate_watch_transport(self):
+        self._no_progress_minutes = 0
+        self._watch_transport_idx = (self._watch_transport_idx + 1) % len(WATCH_TRANSPORTS)
+        transport: str = WATCH_TRANSPORTS[self._watch_transport_idx]
+        logger.warning(
+            f"No server-confirmed drop progress for {WATCH_TRANSPORT_SWITCH_MINUTES} minutes, "
+            f"switching the watch transport to: {transport}"
+        )
+        self.print(f"Drop progress isn't being counted; switching watch method to: {transport}")
 
     @task_wrapper
     async def process_stream_state(self, channel_id: int, message: JsonType):
@@ -1203,6 +1252,8 @@ class Twitch:
                 self.change_state(State.INVENTORY_FETCH)
             return
         assert msg_type == "drop-progress"
+        # any progress event means Twitch is counting our watch time via the current transport
+        self._ws_progress_received = True
         if drop is not None:
             drop_text = (
                 f"{drop.name} ({drop.campaign.game}, "
