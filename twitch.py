@@ -20,6 +20,7 @@ from gui import GUIManager
 from channel import Channel
 from websocket import WebsocketPool
 from inventory import DropsCampaign
+from update_check import update_check_loop
 from exceptions import (
     ExitRequest,
     GQLException,
@@ -473,6 +474,8 @@ class Twitch:
         self.websocket = WebsocketPool(self)
         # Maintenance task
         self._mnt_task: asyncio.Task[None] | None = None
+        # Update check task
+        self._update_check_task: asyncio.Task[None] | None = None
 
     def on_event(self, name: str, callback: Callable[..., Any]) -> None:
         """
@@ -535,6 +538,9 @@ class Twitch:
         if self._mnt_task is not None:
             self._mnt_task.cancel()
             self._mnt_task = None
+        if self._update_check_task is not None:
+            self._update_check_task.cancel()
+            self._update_check_task = None
         # stop websocket, close session and save cookies
         await self.websocket.stop(clear_topics=True)
         if self._session is not None:
@@ -652,6 +658,10 @@ class Twitch:
         if self._watching_task is not None:
             self._watching_task.cancel()
         self._watching_task = asyncio.create_task(self._watch_loop())
+        # NOTE: update check task is explicitly restarted on each new run as well
+        if self._update_check_task is not None:
+            self._update_check_task.cancel()
+        self._update_check_task = asyncio.create_task(update_check_loop(self))
         # Add default topics
         self.websocket.add_topics([
             WebsocketTopic("User", "Drops", auth_state.user_id, self.process_drops),

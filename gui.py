@@ -1564,6 +1564,7 @@ class _SettingsVars(TypedDict):
     dark_mode: IntVar
     language: StringVar
     priority_mode: StringVar
+    update_check: IntVar
     tray_notifications: IntVar
     enable_badges_emotes: IntVar
     available_drops_check: IntVar
@@ -1599,6 +1600,7 @@ class SettingsPanel:
             "tray": IntVar(master, self._settings.autostart_tray),
             "dark_mode": IntVar(master, int(self._settings.dark_mode)),
             "priority_mode": StringVar(master, self.PRIORITY_MODES[priority_mode]),
+            "update_check": IntVar(master, int(self._settings.update_check)),
             "tray_notifications": IntVar(master, self._settings.tray_notifications),
             "enable_badges_emotes": IntVar(
                 master, int(self._settings.enable_badges_emotes)
@@ -1666,6 +1668,18 @@ class SettingsPanel:
                     bool(self._vars["tray_notifications"].get()),
                 ),
             ).grid(column=1, row=irow, sticky="w")
+        ttk.Label(
+            checkboxes_frame, text=_("gui", "settings", "general", "update_check")
+        ).grid(column=0, row=(irow := irow + 1), sticky="e")
+        ttk.Checkbutton(
+            checkboxes_frame,
+            variable=self._vars["update_check"],
+            command=lambda: setattr(
+                self._settings,
+                "update_check",
+                bool(self._vars["update_check"].get()),
+            ),
+        ).grid(column=1, row=irow, sticky="w")
         ttk.Label(
             checkboxes_frame, text=_("gui", "settings", "general", "dark_mode")
         ).grid(column=0, row=(irow := irow + 1), sticky="e")
