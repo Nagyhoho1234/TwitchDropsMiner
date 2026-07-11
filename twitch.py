@@ -1217,7 +1217,8 @@ class Twitch:
         msg_type = message["type"]
         channel = self.channels.get(channel_id)
         if channel is None:
-            logger.error(f"Stream state change for a non-existing channel: {channel_id}")
+            # normal race: events can still arrive for channels already cleaned up (issue #110)
+            logger.log(CALL, f"Stream state change for a non-existing channel: {channel_id}")
             return
         if msg_type == "viewcount":
             if not channel.online:
@@ -1253,7 +1254,8 @@ class Twitch:
         # }
         channel = self.channels.get(channel_id)
         if channel is None:
-            logger.error(f"Broadcast settings update for a non-existing channel: {channel_id}")
+            # normal race: events can still arrive for channels already cleaned up (issue #110)
+            logger.log(CALL, f"Broadcast settings update for a non-existing channel: {channel_id}")
             return
         if message["old_game"] != message["game"]:
             game_change = f", game changed: {message['old_game']} -> {message['game']}"

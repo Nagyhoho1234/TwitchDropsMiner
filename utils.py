@@ -268,6 +268,10 @@ def json_save(path: Path, contents: Mapping[Any, Any], *, sort: bool = False) ->
     new_path: Path = path.with_name(f"{path.name}.new")
     with new_path.open('w', encoding="utf8") as file:
         json.dump(contents, file, default=_serialize, sort_keys=sort, indent=4)
+        # ensure the data hits the disk before the rename below,
+        # so a crash or power loss can't leave a blank file behind (issue #1042)
+        file.flush()
+        os.fsync(file.fileno())
     new_path.replace(path)
 
 
