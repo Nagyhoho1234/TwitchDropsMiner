@@ -1,5 +1,14 @@
 # Twitch Drops Miner
 
+> [!NOTE]
+> **About this fork:** This is a fork of [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDropsMiner)
+> that exists to bridge gaps while upstream is broken — it carries the July 2026 watch-event fix
+> (upstream [#1099](https://github.com/DevilXD/TwitchDropsMiner/issues/1099)), a self-healing watch-transport
+> watchdog, and several quality-of-life features (see [CHANGELOG.md](CHANGELOG.md)). Working builds are on the
+> [releases page](https://github.com/Nagyhoho1234/TwitchDropsMiner/releases).
+> **This fork is not a long-term maintained project.** All changes have been offered to the upstream
+> maintainer (MIT — free to cherry-pick). Once upstream ships its own fixes, please switch back to it.
+
 This application allows you to AFK mine timed Twitch drops, without having to worry about switching channels when the one you were watching goes offline, claiming the drops, or even receiving the stream data itself. This helps you save on bandwidth and hassle.
 
 ### How It Works:
