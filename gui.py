@@ -699,14 +699,17 @@ class CampaignProgress:
             maximum=1,
             variable=self._vars["drop"]["progress"],
         ).grid(column=0, row=10, columnspan=2)
+        # Drop ETA: wall-clock finish estimate, self-contained (var + label + _update_eta only)
+        self._eta_var = StringVar(master)
+        ttk.Label(frame, textvariable=self._eta_var).grid(column=0, row=11, columnspan=2)
         # trust indicators: watch-minute verification state and the watch transport in use
         self._verification_var = StringVar(master)
         self._transport_var = StringVar(master)
         self._verification_label = ttk.Label(frame, textvariable=self._verification_var)
-        self._verification_label.grid(column=0, row=11, columnspan=2)
+        self._verification_label.grid(column=0, row=12, columnspan=2)
         ttk.Label(
             frame, textvariable=self._transport_var
-        ).grid(column=0, row=12, columnspan=2)
+        ).grid(column=0, row=13, columnspan=2)
         self._drop: TimedDrop | None = None
         self._seconds: int = 0
         self._timer_task: asyncio.Task[None] | None = None
@@ -796,11 +799,22 @@ class CampaignProgress:
         # already or almost done
         return self._timer_task is None or self._seconds <= self.ALMOST_DONE_SECONDS
 
+    def _update_eta(self, drop: TimedDrop | None, countdown: bool) -> None:
+        # wall-clock estimate of when the displayed drop finishes mining
+        if drop is not None and countdown and drop.remaining_minutes > 0:
+            finish_stamp = datetime.now() + timedelta(minutes=drop.remaining_minutes)
+            self._eta_var.set(
+                _("gui", "progress", "eta").format(time=finish_stamp.strftime("%H:%M"))
+            )
+        else:
+            self._eta_var.set('')
+
     def display(self, drop: TimedDrop | None, *, countdown: bool = True, subone: bool = False):
         self._drop = drop
         vars_drop = self._vars["drop"]
         vars_campaign = self._vars["campaign"]
         self.stop_timer()
+        self._update_eta(drop, countdown)
         if drop is None:
             # clear the drop display
             vars_drop["rewards"].set("...")
@@ -1265,9 +1279,18 @@ class Notebook:
         self._nb.bind("<<NotebookTabChanged>>", callback, True)
 
 
+def format_remaining_minutes(minutes: int) -> str:
+    # formats a minutes amount as "Xh Ym", or just "Ym" for less than an hour
+    hours, mins = divmod(minutes, 60)
+    if hours > 0:
+        return f"{hours}h {mins}m"
+    return f"{mins}m"
+
+
 class CampaignDisplay(TypedDict):
     frame: ttk.Frame
     status: ttk.Label
+    eta: ttk.Label
 
 
 class InventoryOverview:
@@ -1404,12 +1427,22 @@ class InventoryOverview:
             status_color = "red"
         return (status_text, status_color)
 
+    def get_eta_text(self, campaign: DropsCampaign) -> str:
+        # remaining mining time estimate, shown for unfinished campaigns only
+        if campaign.finished or campaign.remaining_minutes <= 0:
+            return ''
+        return _("gui", "inventory", "eta").format(
+            time=format_remaining_minutes(campaign.remaining_minutes)
+        )
+
     def refresh(self):
         for campaign in self._campaigns:
             # status
             status_label = self._campaigns[campaign]["status"]
             status_text, status_color = self.get_status(campaign)
             status_label.config(text=status_text, foreground=status_color)
+            # remaining time estimate
+            self._campaigns[campaign]["eta"].config(text=self.get_eta_text(campaign))
             # visibility
             self._update_visibility(campaign)
         self._canvas_update()
@@ -1443,12 +1476,16 @@ class InventoryOverview:
             campaign_frame, text=status_text, takefocus=False, foreground=status_color
         )
         status_label.grid(column=1, row=1, sticky="w", padx=4)
+        # Campaign ETA (remaining minutes to mine, kept current via refresh())
+        eta_label = ttk.Label(campaign_frame, text=self.get_eta_text(campaign), takefocus=False)
+        eta_label.grid(column=1, row=5, sticky="w", padx=4)
         # NOTE: We have to save the campaign's frame and status before any awaits happen,
         # otherwise the len(self._campaigns) call may overwrite an existing frame,
         # if the campaigns are added concurrently.
         self._campaigns[campaign] = {
             "frame": campaign_frame,
             "status": status_label,
+            "eta": eta_label,
         }
         # Starts / Ends
         MouseOverLabel(
@@ -2387,6 +2424,12 @@ class GUIManager:
         self.progress = CampaignProgress(self, main_frame)
         self.output = ConsoleOutput(self, main_frame)
         self.channels = ChannelList(self, main_frame)
+        # Session summary line (below the output frame), updated via update_session_stats
+        self._session_var = StringVar(main_frame)
+        ttk.Label(
+            main_frame, textvariable=self._session_var
+        ).grid(column=0, row=4, columnspan=3, sticky="w", padx=2)
+        self.update_session_stats(drops=0, minutes=0, campaigns=0)
         # Inventory tab
         inv_frame = ttk.Frame(root_frame, padding=8)
         self.inv = InventoryOverview(self, inv_frame)
@@ -2582,6 +2625,14 @@ class GUIManager:
     def print(self, message: str):
         # print to our custom output
         self.output.print(message)
+
+    def update_session_stats(self, *, drops: int, minutes: int, campaigns: int) -> None:
+        # updates the session summary line on the main tab
+        self._session_var.set(
+            _("gui", "session", "summary").format(
+                drops=drops, minutes=minutes, campaigns=campaigns
+            )
+        )
 
     def _set_title_bar_color(self, color: int) -> None:
         """

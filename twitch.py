@@ -7,6 +7,7 @@ from time import time
 from copy import deepcopy
 from itertools import chain
 from functools import partial
+from dataclasses import dataclass
 from collections import abc, deque, OrderedDict
 from datetime import datetime, timedelta, timezone
 from contextlib import suppress, asynccontextmanager
@@ -79,6 +80,16 @@ class SkipExtraJsonDecoder(json.JSONDecoder):
 
 
 SAFE_LOADS = lambda s: json.loads(s, cls=SkipExtraJsonDecoder)
+
+
+@dataclass
+class SessionStats:
+    """
+    Per-session mining statistics, updated via internal event subscriptions in Twitch.__init__.
+    """
+    drops_claimed: int = 0
+    campaigns_finished: int = 0
+    minutes_mined: int = 0
 
 
 class _AuthState:
@@ -475,6 +486,34 @@ class Twitch:
         self.webhooks: WebhookNotifier = WebhookNotifier(self)
         # Trust indicators: mirror each watch cycle's confirmation state in the GUI
         self.on_event("watch_minute", self.gui.progress.update_verification)
+        # Session statistics: updated via the event bus below, displayed on the main tab
+        self.session_stats: SessionStats = SessionStats()
+
+        def _session_refresh() -> None:
+            self.gui.update_session_stats(
+                drops=self.session_stats.drops_claimed,
+                minutes=self.session_stats.minutes_mined,
+                campaigns=self.session_stats.campaigns_finished,
+            )
+
+        def _session_drop_claimed(drop: TimedDrop) -> None:
+            self.session_stats.drops_claimed += 1
+            _session_refresh()
+
+        def _session_campaign_finished(campaign: DropsCampaign) -> None:
+            self.session_stats.campaigns_finished += 1
+            _session_refresh()
+
+        def _session_watch_minute(
+            confirmed: bool, transport: str, unconfirmed_minutes: int
+        ) -> None:
+            if confirmed:
+                self.session_stats.minutes_mined += 1
+                _session_refresh()
+
+        self.on_event("drop_claimed", _session_drop_claimed)
+        self.on_event("campaign_finished", _session_campaign_finished)
+        self.on_event("watch_minute", _session_watch_minute)
         # Websocket
         self.websocket = WebsocketPool(self)
         # Maintenance task
