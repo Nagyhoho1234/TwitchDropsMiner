@@ -4,6 +4,15 @@ This fork tracks [DevilXD/TwitchDropsMiner](https://github.com/DevilXD/TwitchDro
 master, with the changes below applied on top. If upstream ships its own fix for an issue
 listed here, prefer upstream's version.
 
+## v16-fork.7 — 2026-07-21
+
+### Fixed
+- **Stale `GameDirectory` GQL persisted-query hash.** Twitch rotated the
+  server-side hash for the `DirectoryPage_Game` query; our fork was still
+  pinned to the old value, which risked silent `PersistedQueryNotFound`
+  failures on game-directory lookups. Matches upstream's own fix
+  (`7f09d3a`) for the same rotation.
+
 ## v16-fork.6 — 2026-07-11
 
 ### Changed

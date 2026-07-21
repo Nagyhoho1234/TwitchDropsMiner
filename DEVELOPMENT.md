@@ -204,13 +204,15 @@ UI strings, a Hungarian/native linguistic review — that's the workflow used th
 | v16-fork.4 | Security & stability hardening (two adversarial reviews) |
 | v16-fork.5 | All fork features localized in all 21 languages (`#` = unreviewed) |
 | v16-fork.6 | Bounded transport rotation (detectability hardening) |
+| v16-fork.7 | `GameDirectory` GQL persisted-query hash update (matches upstream `7f09d3a`) |
 
 ## 10. Upstream engagement (relationship: track master, prefer upstream fixes, MIT)
 
-- **PR [#1103](https://github.com/DevilXD/TwitchDropsMiner/pull/1103)** — Hungarian translation (base keys only; likely merge).
-- **Issue [#1099](https://github.com/DevilXD/TwitchDropsMiner/issues/1099)** — watchdog design offered + detectability Q answered.
-- **Issue [#1081](https://github.com/DevilXD/TwitchDropsMiner/issues/1081)** — Python 3.14-on-Windows verification reported.
-- **PR [#1102](https://github.com/DevilXD/TwitchDropsMiner/pull/1102)** — verified-fix confirmation for the Spade fix.
+- **PR [#1103](https://github.com/DevilXD/TwitchDropsMiner/pull/1103)** — Hungarian translation. **Merged** upstream 2026-07-11.
+- **Issue [#1099](https://github.com/DevilXD/TwitchDropsMiner/issues/1099)** — watchdog design offered + detectability Q answered. DevilXD shipped his own independent Spade fix (`4148c71`, same day as our PR); issue still open upstream as of 2026-07-21 pending his confirmation.
+- **Issue [#1081](https://github.com/DevilXD/TwitchDropsMiner/issues/1081)** — Python 3.14-on-Windows verification reported; no reply yet.
+- **PR [#1102](https://github.com/DevilXD/TwitchDropsMiner/pull/1102)** — our Spade fix; **closed unmerged** — DevilXD had already written his own equivalent fix (`4148c71`) before seeing ours.
+- Upstream is currently 6 commits ahead of our fork point (Wayland/Linux UI-freeze fix, Polish/Chinese translation updates, the `DirectoryPage_Game` hash rotation now applied in v16-fork.7). Not yet merged into this fork's history otherwise.
 
 When upstream ships an official fix, `git pull` and prefer DevilXD's version; the fork features
 are decoupled subscribers, so each can be re-offered as a focused PR on request.
